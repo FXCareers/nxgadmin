@@ -1,100 +1,155 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '@/lib/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiClient } from "@/lib/api";
+
+// Helper function to normalize blog data from API
+const normalizeBlogData = (blog) => {
+  return {
+    id: blog.id,
+    title: blog.blog_title || blog.title,
+    content: blog.content || blog.content_preview || "",
+    summary: blog.summary || blog.content_preview || "",
+    author: blog.author || {},
+    slug: blog.slug,
+    tags: blog.tags || "",
+    status: blog.status || "published",
+    seo_title: blog.seotitle || blog.seo_title || "",
+    seo_description: blog.seodiscr || blog.seo_description || "",
+    seo_keywords: blog.seokeyword || blog.seo_keywords || "",
+    image_url: blog.blogimage || blog.image_url,
+    category_id: blog.category_id,
+    subcategory_id: blog.subcategory_id,
+    read_time: blog.read_time || 0,
+    created_at: blog.created_at,
+    updated_at: blog.updated_at,
+    image_url: blog.blogimage,
+    // Keep original fields for reference
+    _original: blog,
+  };
+};
 
 // Async thunks for blog operations
 export const fetchBlogs = createAsyncThunk(
-  'blog/fetchBlogs',
+  "blog/fetchBlogs",
   async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      const response = await apiClient.request(`/blogs?page=${page}&limit=${limit}`);
-      
+      const response = await apiClient.request(`/blogs`);
+
+      let blogs = [];
+
       if (response.blogs && Array.isArray(response.blogs)) {
-        return {
-          blogs: response.blogs,
-          pagination: {
-            total: response.total || response.pagination?.total || response.blogs.length,
-            page: response.page || page,
-            limit: response.limit || limit,
-            totalPages: response.totalPages || response.pagination?.totalPages || 1
-          }
-        };
+        blogs = response.blogs.map(normalizeBlogData);
       } else if (Array.isArray(response.data)) {
-        return { blogs: response.data, pagination: { total: response.data.length, page, limit, totalPages: 1 } };
+        blogs = response.data.map(normalizeBlogData);
       } else if (Array.isArray(response)) {
-        return { blogs: response, pagination: { total: response.length, page, limit, totalPages: 1 } };
-      } else {
-        return { blogs: [], pagination: { total: 0, page, limit, totalPages: 1 } };
+        blogs = response.map(normalizeBlogData);
       }
+
+      return {
+        blogs,
+        pagination: {
+          total: response.total || response.pagination?.total || blogs.length,
+          page: response.page || page,
+          limit: response.limit || limit,
+          totalPages:
+            response.totalPages ||
+            response.pagination?.totalPages ||
+            Math.ceil(blogs.length / limit),
+        },
+      };
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch blogs');
+      return rejectWithValue(error.message || "Failed to fetch blogs");
     }
   }
 );
 
 export const createBlog = createAsyncThunk(
-  'blog/createBlog',
+  "blog/createBlog",
   async (blogData, { rejectWithValue }) => {
     try {
       const formData = new FormData();
+
+      // Map normalized field names to API field names
+      const fieldMapping = {
+        title: "blog_title",
+        seo_title: "seotitle",
+        seo_description: "seodiscr",
+        seo_keywords: "seokeyword",
+      };
+
       for (const key in blogData) {
-        if (key === 'images') {
+        if (key === "images") {
           if (blogData.images && blogData.images.length > 0) {
-            formData.append('images', blogData.images[0]);
+            formData.append("images", blogData.images[0]);
           }
         } else {
-          formData.append(key, blogData[key]);
+          // Use mapped field name if available, otherwise use original key
+          const apiFieldName = fieldMapping[key] || key;
+          formData.append(apiFieldName, blogData[key]);
         }
       }
 
-      const response = await apiClient.request('/blogs', {
-        method: 'POST',
+      const response = await apiClient.request("/blogs", {
+        method: "POST",
         body: formData,
       });
-      console.log('Create blog response:', response);
-      return response.blog || response.data || response;
+      console.log("Create blog response:", response);
+      const rawBlog = response.blog || response.data || response;
+      return normalizeBlogData(rawBlog);
     } catch (error) {
-      console.error('Create blog error:', error);
-      return rejectWithValue(error.message || 'Failed to create blog');
+      console.error("Create blog error:", error);
+      return rejectWithValue(error.message || "Failed to create blog");
     }
   }
 );
 
 export const updateBlog = createAsyncThunk(
-  'blog/updateBlog',
+  "blog/updateBlog",
   async ({ id, ...blogData }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
+
+      // Map normalized field names to API field names
+      const fieldMapping = {
+        title: "blog_title",
+        seo_title: "seotitle",
+        seo_description: "seodiscr",
+        seo_keywords: "seokeyword",
+      };
+
       for (const key in blogData) {
-        if (key === 'images') {
+        if (key === "images") {
           if (blogData.images && blogData.images.length > 0) {
-            formData.append('images', blogData.images[0]);
+            formData.append("images", blogData.images[0]);
           }
         } else {
-          formData.append(key, blogData[key]);
+          // Use mapped field name if available, otherwise use original key
+          const apiFieldName = fieldMapping[key] || key;
+          formData.append(apiFieldName, blogData[key]);
         }
       }
 
       const response = await apiClient.request(`/blogs/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: formData,
       });
-      return response.blog || response.data || response;
+      const rawBlog = response.blog || response.data || response;
+      return normalizeBlogData(rawBlog);
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to update blog');
+      return rejectWithValue(error.message || "Failed to update blog");
     }
   }
 );
 
 export const deleteBlog = createAsyncThunk(
-  'blog/deleteBlog',
+  "blog/deleteBlog",
   async (id, { rejectWithValue }) => {
     try {
       await apiClient.request(`/blogs/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       return id;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to delete blog');
+      return rejectWithValue(error.message || "Failed to delete blog");
     }
   }
 );
@@ -105,18 +160,18 @@ const initialState = {
     total: 0,
     page: 1,
     limit: 10,
-    totalPages: 1
+    totalPages: 1,
   },
   loading: false,
   error: null,
-  totalBlog:0,
+  totalBlog: 0,
   createLoading: false,
   updateLoading: false,
   deleteLoading: false,
 };
 
 const blogSlice = createSlice({
-  name: 'blog',
+  name: "blog",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -135,7 +190,9 @@ const blogSlice = createSlice({
       })
       .addCase(fetchBlogs.fulfilled, (state, action) => {
         state.loading = false;
-        state.blogs = Array.isArray(action.payload.blogs) ? action.payload.blogs : [];
+        state.blogs = Array.isArray(action.payload.blogs)
+          ? action.payload.blogs
+          : [];
         state.totalBlog = action.payload.pagination.total;
         state.pagination = action.payload.pagination || initialState.pagination;
         state.error = null;
@@ -143,7 +200,7 @@ const blogSlice = createSlice({
       .addCase(fetchBlogs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
 
     // Create blog
     builder
@@ -163,7 +220,7 @@ const blogSlice = createSlice({
       .addCase(createBlog.rejected, (state, action) => {
         state.createLoading = false;
         state.error = action.payload;
-      })
+      });
 
     // Update blog
     builder
@@ -174,7 +231,9 @@ const blogSlice = createSlice({
       .addCase(updateBlog.fulfilled, (state, action) => {
         state.updateLoading = false;
         if (Array.isArray(state.blogs)) {
-          const index = state.blogs.findIndex(blog => blog.id === action.payload.id);
+          const index = state.blogs.findIndex(
+            (blog) => blog.id === action.payload.id
+          );
           if (index !== -1) {
             state.blogs[index] = action.payload;
           }
@@ -186,7 +245,7 @@ const blogSlice = createSlice({
       .addCase(updateBlog.rejected, (state, action) => {
         state.updateLoading = false;
         state.error = action.payload;
-      })
+      });
 
     // Delete blog
     builder
@@ -197,7 +256,9 @@ const blogSlice = createSlice({
       .addCase(deleteBlog.fulfilled, (state, action) => {
         state.deleteLoading = false;
         if (Array.isArray(state.blogs)) {
-          state.blogs = state.blogs.filter(blog => blog.id !== action.payload);
+          state.blogs = state.blogs.filter(
+            (blog) => blog.id !== action.payload
+          );
         }
         state.error = null;
       })
