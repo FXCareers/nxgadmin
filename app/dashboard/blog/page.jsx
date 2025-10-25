@@ -12,7 +12,7 @@ import Input from '@/components/UI/Input';
 import Textarea from '@/components/UI/Textarea';
 import RichTextEditor from '@/components/UI/RichTextEditor';
 import { Plus, Edit, Trash2, Loader2, AlertCircle, FileText, Calendar, User, Tag } from 'lucide-react';
-import Pagination from '@/components/UI/Pagination';
+// import Pagination from '@/components/UI/Pagination';
 import useScreenHeight from '@/hooks/useScreenHeight';
 
 const BlogPage = () => {
@@ -39,30 +39,7 @@ const BlogPage = () => {
 
   // Helper function to get safe image URL
   const getSafeImageUrl = (imageUrl) => {
-    if (!imageUrl) return null;
-    
-    // Handle different types of image data
-    if (typeof imageUrl === 'object') {
-      // If it's a File object or blob URL, return as is
-      if (imageUrl instanceof File) {
-        return URL.createObjectURL(imageUrl);
-      }
-      // If it's an object with url property (API response)
-      if (imageUrl.url) {
-        return getSafeImageUrl(imageUrl.url);
-      }
-      return null;
-    }
-    
-    // Ensure it's a string
-    const urlString = String(imageUrl);
-    
-    // If it's a yagroup.org URL, use our proxy
-    if (urlString.includes('api.yagroup.org')) {
-      return `/api/proxy-image?url=${encodeURIComponent(urlString)}`;
-    }
-    
-    return urlString;
+    return imageUrl && typeof imageUrl === 'string' ? imageUrl : null;
   };
 
   // Handle image errors
@@ -98,13 +75,6 @@ const BlogPage = () => {
     dispatch(fetchBlogs({ page: currentPage, limit: itemsPerPage }));
   }, [dispatch, currentPage, itemsPerPage]);
 
-  // Debug: Log the blogs state
-  useEffect(() => {
-    console.log('Blogs state:', blogs);
-    console.log('Blogs is array:', Array.isArray(blogs));
-    console.log('Blogs length:', blogs?.length);
-  }, [blogs]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -135,7 +105,9 @@ const BlogPage = () => {
       title: blog.title || '',
       content: blog.content || '',
       summary: blog.summary || '',
-      author: blog.author || blog.author_name || '',
+      author: typeof blog.author === 'object' && blog.author 
+        ? `${blog.author.fname} ${blog.author.lname}` 
+        : blog.author || blog.author_name || '',
       slug: blog.slug || '',
       tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags || ''),
       status: blog.status || 'draft',
@@ -499,12 +471,28 @@ const BlogPage = () => {
                   </div>
 
                   <div className="space-y-2 mb-4">
+                    {/* Category */}
+                    {blog.category_id && typeof blog.category_id === 'object' && blog.category_id.name && (
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          isDark ? 'bg-yellow-400' : 'bg-yellow-600'
+                        }`} />
+                        <span className={`text-sm font-medium ${
+                          isDark ? 'text-yellow-400' : 'text-yellow-600'
+                        }`}>
+                          {blog.category_id.name}
+                        </span>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center space-x-2">
                       <User size={14} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
                       <span className={`text-sm ${
                         isDark ? 'text-gray-400' : 'text-gray-600'
                       }`}>
-                        {blog.author || blog.author_name}
+                        {typeof blog.author === 'object' && blog.author 
+                          ? `${blog.author.fname} ${blog.author.lname}` 
+                          : blog.author || blog.author_name || 'Unknown Author'}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -525,6 +513,24 @@ const BlogPage = () => {
                         </span>
                       </div>
                     )}
+                    
+                    {/* Read Time */}
+                    {blog.read_time > 0 && (
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-3 h-3 rounded-full border ${
+                          isDark ? 'border-gray-400' : 'border-gray-500'
+                        } flex items-center justify-center`}>
+                          <div className={`w-1 h-1 rounded-full ${
+                            isDark ? 'bg-gray-400' : 'bg-gray-500'
+                          }`} />
+                        </div>
+                        <span className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                          {blog.read_time} min read
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -532,14 +538,14 @@ const BlogPage = () => {
           </div>
         )}
         {/* Pagination */}
-        {pagination.totalPages > 1 && (
+        {/* {pagination.totalPages > 1 && (
           <Pagination
             currentPage={pagination.page}
             totalItems={pagination.total}
             itemsPerPage={pagination.limit}
             onPageChange={setCurrentPage}
           />
-        )}
+        )} */}
         {/* Modal */}
         <Modal
           isOpen={isModalOpen}
