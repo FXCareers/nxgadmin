@@ -99,7 +99,8 @@ const BlogPage = () => {
     { value: 2, label: 'Stocks' },
     { value: 3, label: 'Crypto' },
     { value: 4, label: 'Commodities' },
-    { value: 5, label: 'Indices' }
+    { value: 6, label: 'Indices' }
+
   ];
 
   // Fetch blogs when page or itemsPerPage changes

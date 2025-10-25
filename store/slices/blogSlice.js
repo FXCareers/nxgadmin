@@ -71,6 +71,7 @@ export const createBlog = createAsyncThunk(
       // Map normalized field names to API field names
       const fieldMapping = {
         title: "blog_title",
+        author: "blogname", // Map author to blogname as expected by API
         seo_title: "seotitle",
         seo_description: "seodiscr",
         seo_keywords: "seokeyword",
@@ -79,7 +80,7 @@ export const createBlog = createAsyncThunk(
       for (const key in blogData) {
         if (key === "images") {
           if (blogData.images && blogData.images.length > 0) {
-            formData.append("images", blogData.images[0]);
+            formData.append("blogimage", blogData.images[0]);
           }
         } else {
           // Use mapped field name if available, otherwise use original key
@@ -111,6 +112,7 @@ export const updateBlog = createAsyncThunk(
       // Map normalized field names to API field names
       const fieldMapping = {
         title: "blog_title",
+        author: "blogname", // Map author to blogname as expected by API
         seo_title: "seotitle",
         seo_description: "seodiscr",
         seo_keywords: "seokeyword",
@@ -119,7 +121,7 @@ export const updateBlog = createAsyncThunk(
       for (const key in blogData) {
         if (key === "images") {
           if (blogData.images && blogData.images.length > 0) {
-            formData.append("images", blogData.images[0]);
+            formData.append("blogimage", blogData.images[0]);
           }
         } else {
           // Use mapped field name if available, otherwise use original key
