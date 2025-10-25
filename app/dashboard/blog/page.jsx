@@ -9,6 +9,7 @@ import Card from '@/components/UI/Card';
 import Button from '@/components/UI/Button';
 import Modal from '@/components/UI/Modal';
 import Input from '@/components/UI/Input';
+import Select from '@/components/UI/Select';
 import Textarea from '@/components/UI/Textarea';
 import RichTextEditor from '@/components/UI/RichTextEditor';
 import { Plus, Edit, Trash2, Loader2, AlertCircle, FileText, Calendar, User, Tag } from 'lucide-react';
@@ -31,11 +32,22 @@ const BlogPage = () => {
     slug: '',
     tags: '',
     status: 'published',
+    category_id: '',
+    subcategory_id: '',
     seo_title: '',
     seo_description: '',
     seo_keywords: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Memoized callback functions for RichTextEditor
+  const handleSummaryChange = useCallback((value) => {
+    setFormData(prev => ({ ...prev, summary: value }));
+  }, []);
+
+  const handleContentChange = useCallback((value) => {
+    setFormData(prev => ({ ...prev, content: value }));
+  }, []);
 
   // Helper function to get safe image URL
   const getSafeImageUrl = (imageUrl) => {
@@ -68,6 +80,26 @@ const BlogPage = () => {
     { value: 'draft', label: 'Draft' },
     { value: 'published', label: 'Published' },
     { value: 'archived', label: 'Archived' }
+  ];
+
+  // Sample category options - these should ideally come from an API
+  const categoryOptions = [
+    { value: '', label: 'Select Category' },
+    { value: 1, label: 'Market Analysis' },
+    { value: 2, label: 'Trading Tips' },
+    { value: 3, label: 'Educational' },
+    { value: 4, label: 'News & Updates' },
+    { value: 5, label: 'Technical Analysis' }
+  ];
+
+  // Sample subcategory options - these should ideally come from an API based on selected category
+  const subcategoryOptions = [
+    { value: '', label: 'Select Subcategory' },
+    { value: 1, label: 'Forex' },
+    { value: 2, label: 'Stocks' },
+    { value: 3, label: 'Crypto' },
+    { value: 4, label: 'Commodities' },
+    { value: 5, label: 'Indices' }
   ];
 
   // Fetch blogs when page or itemsPerPage changes
@@ -111,6 +143,8 @@ const BlogPage = () => {
       slug: blog.slug || '',
       tags: Array.isArray(blog.tags) ? blog.tags.join(', ') : (blog.tags || ''),
       status: blog.status || 'draft',
+      category_id: typeof blog.category_id === 'object' && blog.category_id ? blog.category_id.id : blog.category_id || '',
+      subcategory_id: typeof blog.subcategory_id === 'object' && blog.subcategory_id ? blog.subcategory_id.id : blog.subcategory_id || '',
       seo_title: blog.seo_title || '',
       seo_description: blog.seo_description || '',
       seo_keywords: blog.seo_keywords || ''
@@ -158,6 +192,8 @@ const BlogPage = () => {
       slug: '',
       tags: '',
       status: 'draft',
+      category_id: '',
+      subcategory_id: '',
       seo_title: '',
       seo_description: '',
       seo_keywords: ''
@@ -585,6 +621,22 @@ const BlogPage = () => {
                   placeholder="Enter tags separated by commas"
                 />
                 
+                {/* Category and Subcategory */}
+                <Select
+                  label="Category"
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                  options={categoryOptions}
+                  required
+                />
+                
+                <Select
+                  label="Subcategory"
+                  value={formData.subcategory_id}
+                  onChange={(e) => setFormData({ ...formData, subcategory_id: e.target.value })}
+                  options={subcategoryOptions}
+                />
+                
                 {/* Image Upload */}
                 <div>
                   <label className={`block text-sm font-medium mb-2 ${
@@ -643,9 +695,7 @@ const BlogPage = () => {
                 <RichTextEditor
                   label="Summary"
                   value={formData.summary}
-                  onChange={useCallback((value) => {
-                    setFormData(prev => ({ ...prev, summary: value }));
-                  }, [])}
+                  onChange={handleSummaryChange}
                   placeholder="Enter a brief summary"
                   rows={2}
                   required
@@ -653,9 +703,7 @@ const BlogPage = () => {
                 <RichTextEditor
                   label="Content"
                   value={formData.content}
-                  onChange={useCallback((value) => {
-                    setFormData(prev => ({ ...prev, content: value }));
-                  }, [])}
+                  onChange={handleContentChange}
                   placeholder="Enter blog content"
                   rows={6}
                   required
