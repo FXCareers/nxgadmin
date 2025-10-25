@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Image from 'next/image';
 import { fetchBlogs, createBlog, updateBlog, deleteBlog, clearError } from '@/store/slices/blogSlice';
@@ -643,7 +643,9 @@ const BlogPage = () => {
                 <RichTextEditor
                   label="Summary"
                   value={formData.summary}
-                  onChange={(value) => setFormData({ ...formData, summary: value })}
+                  onChange={useCallback((value) => {
+                    setFormData(prev => ({ ...prev, summary: value }));
+                  }, [])}
                   placeholder="Enter a brief summary"
                   rows={2}
                   required
@@ -651,7 +653,9 @@ const BlogPage = () => {
                 <RichTextEditor
                   label="Content"
                   value={formData.content}
-                  onChange={(value) => setFormData({ ...formData, content: value })}
+                  onChange={useCallback((value) => {
+                    setFormData(prev => ({ ...prev, content: value }));
+                  }, [])}
                   placeholder="Enter blog content"
                   rows={6}
                   required
