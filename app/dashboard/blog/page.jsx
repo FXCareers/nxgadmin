@@ -41,9 +41,12 @@ const BlogPage = () => {
   const [expandedSummaries, setExpandedSummaries] = useState(new Set());
   const [expandedContents, setExpandedContents] = useState(new Set());
 
-  // Dynamic category options - fetched from API
+  // Dynamic Category & Subcategory options from API
   const [categoryOptions, setCategoryOptions] = useState([
     { value: "", label: "Select Category" },
+  ]);
+  const [subcategoryOptions, setSubcategoryOptions] = useState([
+    { value: "", label: "Select Subcategory" },
   ]);
 
   const [formData, setFormData] = useState({
@@ -128,6 +131,18 @@ const BlogPage = () => {
     { value: 4, label: 'News & Updates' },
     { value: 5, label: 'Technical Analysis' }
   ]; */
+
+  // Sample subcategory options - these should ideally come from an API based on selected category
+  /* const subcategoryOptions = [
+    { value: "", label: "Select Subcategory" },
+    { value: 1, label: "Forex" },
+    { value: 2, label: "Stocks" },
+    { value: 3, label: "Crypto" },
+    { value: 4, label: "Commodities" },
+    { value: 6, label: "Indices" },
+  ]; */
+
+  // Fetch all categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -154,15 +169,39 @@ const BlogPage = () => {
     fetchCategories();
   }, []);
 
-  // Sample subcategory options - these should ideally come from an API based on selected category
-  const subcategoryOptions = [
-    { value: "", label: "Select Subcategory" },
-    { value: 1, label: "Forex" },
-    { value: 2, label: "Stocks" },
-    { value: 3, label: "Crypto" },
-    { value: 4, label: "Commodities" },
-    { value: 6, label: "Indices" },
-  ];
+  // Fetch subcategories dynamically when category changes
+  useEffect(() => {
+    const fetchSubcategories = async () => {
+      if (!formData.category_id) {
+        // Reset to default if no category selected
+        setSubcategoryOptions([{ value: "", label: "Select Subcategory" }]);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.nxgmarkets.com/blogs/categories/${formData.category_id}/subcategories`
+        );
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          const formatted = [
+            { value: "", label: "Select Subcategory" },
+            ...data.map((sub) => ({
+              value: sub.id,
+              label: sub.name,
+            })),
+          ];
+          setSubcategoryOptions(formatted);
+        }
+      } catch (error) {
+        console.error("Error fetching subcategories:", error);
+        setSubcategoryOptions([{ value: "", label: "Select Subcategory" }]);
+      }
+    };
+
+    fetchSubcategories();
+  }, [formData.category_id]);
 
   // Fetch blogs when page or itemsPerPage changes
   useEffect(() => {
