@@ -347,6 +347,20 @@ const BlogPage = () => {
     return tags || "";
   };
 
+  const getCategoryName = (blog) => {
+    if (!blog) return "";
+    if (blog.category_id && typeof blog.category_id === "object") {
+      return blog.category_id.name || "";
+    }
+    if (typeof blog.category_id === "string") {
+      return blog.category_id;
+    }
+    if (typeof blog.category_id === "number") {
+      return String(blog.category_id);
+    }
+    return "";
+  };
+
   // Helper function to strip HTML tags and get clean text
   const stripHtmlTags = (html) => {
     if (!html) return "";
@@ -393,15 +407,12 @@ const BlogPage = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
-            <Loader2
-              className={`w-12 h-12 animate-spin mx-auto mb-4 ${
-                isDark ? "text-yellow-400" : "text-yellow-600"
-              }`}
-            />
-            <p
-              className={`text-lg ${
-                isDark ? "text-gray-300" : "text-gray-600"
-              }`}>
+            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${
+              isDark ? 'text-primarycolor' : 'text-primarycolor'
+            }`} />
+            <p className={`text-lg ${
+              isDark ? 'text-gray-300' : 'text-gray-600'
+            }`}>
               Loading blogs...
             </p>
           </div>
@@ -476,7 +487,9 @@ const BlogPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.isArray(blogs) &&
-              blogs.map((blog) => (
+              blogs.map((blog) => {
+                const categoryName = getCategoryName(blog);
+                return (
                 <Card
                   key={blog.id}
                   className="overflow-hidden transition-colors">
@@ -544,11 +557,11 @@ const BlogPage = () => {
                             </div>
                           </div>
                         );
-                      }
-                    })()}
-                  </div>
+                    }
+                  })()}
+                </div>
 
-                  <div className="p-6">
+                <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -633,53 +646,32 @@ const BlogPage = () => {
                         <button
                           onClick={() => toggleContentExpanded(blog.id)}
                           className={`text-xs mt-1 font-medium transition-colors ${
-                            isDark
-                              ? "text-yellow-400 hover:text-yellow-300"
-                              : "text-yellow-600 hover:text-yellow-700"
-                          }`}>
-                          {expandedContents.has(blog.id)
-                            ? "Show less"
-                            : "Read more"}
+                            isDark 
+                              ? 'text-primarycolor hover:text-yellow-300' 
+                              : 'text-primarycolor hover:text-yellow-700'
+                          }`}
+                        >
+                          {expandedContents.has(blog.id) ? 'Show less' : 'Read more'}
                         </button>
                       )}
                     </div>
 
                     <div className="space-y-2 mb-4">
-                      {/* Category */}
-                      {blog.category_id &&
-                        typeof blog.category_id === "object" &&
-                        blog.category_id.name && (
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                isDark ? "bg-yellow-400" : "bg-yellow-600"
-                              }`}
-                            />
-                            <span
-                              className={`text-sm font-medium ${
-                                isDark ? "text-yellow-400" : "text-yellow-600"
-                              }`}>
-                              {blog.category_id.name}
-                            </span>
-                          </div>
-                        )}
-
-                      <div className="flex items-center space-x-2">
-                        <User
-                          size={14}
-                          className={isDark ? "text-gray-400" : "text-gray-500"}
-                        />
-                        <span
-                          className={`text-sm ${
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          }`}>
-                          {typeof blog.author === "object" && blog.author
-                            ? `${blog.author.fname} ${blog.author.lname}`
-                            : blog.author ||
-                              blog.author_name ||
-                              "Unknown Author"}
-                        </span>
-                      </div>
+                      {categoryName && (
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              isDark ? "bg-primarycolor" : "bg-primarycolor"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-medium ${
+                              isDark ? "text-primarycolor" : "text-primarycolor"
+                            }`}>
+                            {categoryName}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center space-x-2">
                         <Calendar
                           size={14}
@@ -733,7 +725,8 @@ const BlogPage = () => {
                     </div>
                   </div>
                 </Card>
-              ))}
+                );
+              })}
           </div>
         )}
         {/* Pagination */}
@@ -823,10 +816,10 @@ const BlogPage = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
-                      isDark
-                        ? "bg-gray-800 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${
+                      isDark 
+                        ? 'bg-gray-800 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
                     }`}
                   />
                   {imagePreview && (

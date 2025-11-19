@@ -30,7 +30,7 @@ const Textarea = ({
         onChange={onChange}
         required={required}
         rows={rows}
-        className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-vertical ${
+        className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-primarycolor resize-vertical ${
           isDark
             ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
             : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'

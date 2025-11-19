@@ -129,7 +129,7 @@ const ApplicationsPage = () => {
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${
-              isDark ? 'text-yellow-400' : 'text-yellow-600'
+              isDark ? 'text-primarycolor' : 'text-primarycolor'
             }`} />
             <p className={`text-lg ${
               isDark ? 'text-gray-300' : 'text-gray-600'
@@ -161,7 +161,7 @@ const ApplicationsPage = () => {
           </div>
           <div className="flex items-center space-x-2">
             <FileUser className={`w-8 h-8 ${
-              isDark ? 'text-yellow-400' : 'text-yellow-600'
+              isDark ? 'text-primarycolor' : 'text-primarycolor'
             }`} />
             <span className={`text-2xl font-bold ${
               isDark ? 'text-white' : 'text-gray-900'
@@ -273,7 +273,7 @@ const ApplicationsPage = () => {
               <div className={`p-3 rounded-full ${
                 isDark ? 'bg-yellow-900' : 'bg-yellow-100'
               }`}>
-                <ExternalLink className="w-6 h-6 text-yellow-500" />
+                <ExternalLink className="w-6 h-6 text-primarydarkcolor" />
               </div>
             </div>
           </Card>

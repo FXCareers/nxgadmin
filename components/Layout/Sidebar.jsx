@@ -26,6 +26,13 @@ const Sidebar = () => {
   const { isDark } = useSelector((state) => state.theme);
   const { user } = useSelector((state) => state.auth);
 
+  const getDisplayName = () => {
+    if (!user) return '';
+    const names = [user.fname, user.lname].filter(Boolean).join(' ').trim();
+    if (names) return names;
+    return user.username || user.email || 'User';
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -46,7 +53,7 @@ const Sidebar = () => {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`fixed top-4 right-4 z-50 p-2 rounded-lg lg:hidden transition-colors ${
-            isDark ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-800 hover:bg-gray-100'
+            isDark ? 'bg-gray-800 text-primarycolor hover:bg-gray-700' : 'bg-white text-gray-800 hover:bg-gray-100'
           } shadow-lg`}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -77,12 +84,12 @@ const Sidebar = () => {
                 <Image
                   width={100}
                   height={100}
-                  src={mounted ? (isDark ? '/yagroup_logo_light.svg' : '/yagroup_logo_dark.svg') : '/yagroup_logo_dark.svg'}
-                  alt="Yagroup Logo"
+                  src={mounted ? (isDark ? '/NXG-Logo-white.webp' : '/NXG-Logo-black.webp') : '/NXG-Logo-black.webp'}
+                  alt="NXG Markets Logo"
                 />
                 {mounted && user && (
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Welcome, {user.username}
+                  <p className={`text-xs pt-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Welcome, {getDisplayName()}
                     <span
                       className={`px-2 py-1 ml-1 text-xs font-medium rounded-full ${
                         user.role === 'admin'
@@ -118,11 +125,11 @@ const Sidebar = () => {
                 const baseClass =
                   'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200';
                 const activeClass = isDark
-                  ? 'bg-yellow-500 text-black shadow-lg'
-                  : 'bg-yellow-400 text-black shadow-lg';
+                  ? 'bg-primarydarkcolor text-black shadow-lg'
+                  : 'bg-primarycolor text-black shadow-lg';
                 const normalClass = isDark
-                  ? 'text-gray-300 hover:bg-gray-800 hover:text-yellow-400'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-yellow-600';
+                  ? 'text-gray-300 hover:bg-gray-800 hover:text-primarycolor'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-primarycolor';
                 const disabledClass = isDark
                   ? 'text-gray-500 bg-gray-800 cursor-not-allowed'
                   : 'text-gray-400 bg-gray-100 cursor-not-allowed';
@@ -158,8 +165,8 @@ const Sidebar = () => {
                   onClick={handleThemeToggle}
                   className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                     isDark
-                      ? 'text-gray-300 hover:bg-gray-800 hover:text-yellow-400'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-yellow-600'
+                      ? 'text-gray-300 hover:bg-gray-800 hover:text-primarycolor'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-primarycolor'
                   }`}
                 >
                   {isDark ? <Sun size={20} className="mr-3" /> : <Moon size={20} className="mr-3" />}

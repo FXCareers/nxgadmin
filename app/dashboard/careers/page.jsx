@@ -174,7 +174,7 @@ const CareersPage = () => {
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${
-              isDark ? 'text-yellow-400' : 'text-yellow-600'
+              isDark ? 'text-primarycolor' : 'text-primarycolor'
             }`} />
             <p className={`text-lg ${
               isDark ? 'text-gray-300' : 'text-gray-600'
@@ -280,8 +280,8 @@ const CareersPage = () => {
                       disabled={updateLoading}
                       className={`p-2 rounded-lg transition-colors ${
                         isDark
-                          ? 'text-gray-400 hover:text-yellow-400 hover:bg-gray-700'
-                          : 'text-gray-500 hover:text-yellow-600 hover:bg-gray-100'
+                          ? 'text-gray-400 hover:text-primarycolor hover:bg-gray-700'
+                          : 'text-gray-500 hover:text-primarycolor hover:bg-gray-100'
                       } disabled:opacity-50`}
                     >
                       {updateLoading ? (

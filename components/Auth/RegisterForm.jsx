@@ -156,14 +156,14 @@ const RegisterForm = ({ onSwitchToLogin }) => {
         </div>
 
         {/* Role Field */}
-        <Select
+        {/* <Select
           label="Role"
           name="role"
           value={formData.role}
           onChange={handleInputChange}
           options={roleOptions}
           disabled={loading}
-        />
+        /> */}
 
         {/* Password Field */}
         <div className="relative">
@@ -237,7 +237,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-medium"
+              className="text-primarycolor dark:text-primarycolor hover:text-primarydarkcolor dark:hover:text-primarydarkcolor font-medium"
               disabled={loading}
             >
               Sign in here

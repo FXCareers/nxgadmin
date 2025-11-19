@@ -138,8 +138,8 @@ const Pagination = ({
                   className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
                     currentPage === page
                       ? isDark
-                        ? 'bg-yellow-500 text-black border border-yellow-500'
-                        : 'bg-yellow-400 text-black border border-yellow-400'
+                        ? 'bg-primarydarkcolor text-black border border-primarydarkcolor'
+                        : 'bg-primarycolor text-black border border-primarycolor'
                       : isDark
                         ? 'bg-gray-700 text-white hover:bg-gray-600 border border-gray-600'
                         : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'

@@ -72,7 +72,7 @@ const UserPage = () => {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
+          <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-primarycolor' : 'text-primarycolor'}`} />
         </div>
       </DashboardLayout>
     );

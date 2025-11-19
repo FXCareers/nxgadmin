@@ -31,7 +31,7 @@ const Select = ({
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 ${
+        className={`w-full px-3 py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-primarycolor ${
           isDark
             ? 'bg-gray-700 border-gray-600 text-white'
             : 'bg-white border-gray-300 text-gray-900'

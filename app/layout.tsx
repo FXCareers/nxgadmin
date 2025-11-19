@@ -6,8 +6,8 @@ import Providers from './providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'YA Admin Dashboard',
-  description: 'Admin dashboard for YA group',
+  title: 'NXG markets Admin Panel',
+  description: 'Admin Panel for NXG markets',
 };
 
 export default function RootLayout({

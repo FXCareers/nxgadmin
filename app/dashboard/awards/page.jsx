@@ -184,7 +184,7 @@ const AwardsPage = () => {
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
             <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${
-              isDark ? 'text-yellow-400' : 'text-yellow-600'
+              isDark ? 'text-primarycolor' : 'text-primarycolor'
             }`} />
             <p className={`text-lg ${
               isDark ? 'text-gray-300' : 'text-gray-600'
@@ -296,8 +296,8 @@ const AwardsPage = () => {
                         disabled={updateLoading}
                         className={`p-2 rounded-lg transition-colors ${
                           isDark
-                            ? 'text-gray-400 hover:text-yellow-400 hover:bg-gray-700'
-                            : 'text-gray-500 hover:text-yellow-600 hover:bg-gray-100'
+                            ? 'text-gray-400 hover:text-primarycolor hover:bg-gray-700'
+                            : 'text-gray-500 hover:text-primarycolor hover:bg-gray-100'
                         } disabled:opacity-50`}
                       >
                         {updateLoading ? (
@@ -435,7 +435,7 @@ const AwardsPage = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${
                       isDark 
                         ? 'bg-gray-800 border-gray-600 text-white' 
                         : 'bg-white border-gray-300 text-gray-900'

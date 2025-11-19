@@ -139,7 +139,7 @@ const LoginForm = ({ onSwitchToRegister }) => {
             <button
               type="button"
               onClick={onSwitchToRegister}
-              className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-medium"
+              className="text-primarycolor dark:text-primarycolor hover:text-primarydarkcolor dark:hover:text-primarydarkcolor font-medium"
               disabled={loading}
             >
               Sign up here

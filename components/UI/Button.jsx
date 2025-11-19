@@ -17,15 +17,15 @@ const Button = ({
   
   const variants = {
     primary: isDark
-      ? 'bg-yellow-500 text-black hover:bg-yellow-400 focus:ring-yellow-400'
-      : 'bg-yellow-400 text-black hover:bg-yellow-500 focus:ring-yellow-400',
+      ? 'bg-primarycolor text-white hover:bg-primarydarkcolor focus:ring-primarydarkcolor'
+      : 'bg-primarycolor text-white hover:bg-primarydarkcolor focus:ring-primarydarkcolor',
     secondary: isDark
       ? 'bg-gray-700 text-white hover:bg-gray-600 focus:ring-gray-500'
       : 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400',
     danger: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-400',
     outline: isDark
-      ? 'border-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black'
-      : 'border-2 border-yellow-400 text-yellow-600 hover:bg-yellow-400 hover:text-black',
+      ? 'border-2 border-primarydarkcolor text-primarydarkcolor hover:bg-primarydarkcolor hover:text-black'
+      : 'border-2 border-primarydarkcolor text-primarydarkcolor hover:bg-primarydarkcolor hover:text-black',
   };
 
   const sizes = {

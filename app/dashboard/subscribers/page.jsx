@@ -62,7 +62,7 @@ const SubscribersPage = () => {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
+          <Loader2 className={`w-12 h-12 animate-spin ${isDark ? 'text-primarycolor' : 'text-primarycolor'}`} />
         </div>
       </DashboardLayout>
     );
@@ -83,7 +83,7 @@ const SubscribersPage = () => {
           <div className="flex items-center space-x-4">
             <div className={`px-4 py-2 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
               <div className="flex items-center space-x-2">
-                <Users className={`w-5 h-5 ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                <Users className={`w-5 h-5 ${isDark ? 'text-primarycolor' : 'text-primarycolor'}`} />
                 <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Total: {pagination.totalItems}
                 </span>

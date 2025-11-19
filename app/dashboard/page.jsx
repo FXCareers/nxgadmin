@@ -42,7 +42,7 @@ const DashboardPage = () => {
       title: 'Awards Won',
       value: awards.length,
       icon: Award,
-      color: 'text-yellow-500',
+      color: 'text-primarydarkcolor',
       bgColor: isDark ? 'bg-yellow-900' : 'bg-yellow-100',
     },
     {
@@ -102,7 +102,7 @@ const DashboardPage = () => {
                   </div>
                 </div>
               </Card>
-            );z
+            );
           })}
         </div>
 
@@ -119,7 +119,7 @@ const DashboardPage = () => {
               {blogs.slice(0, 3).map((blog) => (
                 <div key={blog.id} className="flex items-center space-x-3">
                   <div className={`w-2 h-2 rounded-full ${
-                    blog.status === 'published' ? 'bg-green-500' : 'bg-yellow-500'
+                    blog.status === 'published' ? 'bg-green-500' : 'bg-primarydarkcolor'
                   }`} />
                   <div className="flex-1">
                     <p className={`text-sm font-medium ${

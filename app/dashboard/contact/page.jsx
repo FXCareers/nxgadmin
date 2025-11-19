@@ -48,7 +48,7 @@ const ContactPage = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
-            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-yellow-400' : 'text-yellow-600'
+            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-primarycolor' : 'text-primarycolor'
               }`} />
             <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'
               }`}>
@@ -76,7 +76,7 @@ const ContactPage = () => {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <MessageSquare className={`w-8 h-8 ${isDark ? 'text-yellow-400' : 'text-yellow-600'
+            <MessageSquare className={`w-8 h-8 ${isDark ? 'text-primarycolor' : 'text-primarycolor'
               }`} />
             <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'
               }`}>
@@ -154,7 +154,7 @@ const ContactPage = () => {
               </div>
               <div className={`p-3 rounded-full ${isDark ? 'bg-yellow-900' : 'bg-yellow-100'
                 }`}>
-                <Building className="w-6 h-6 text-yellow-500" />
+                <Building className="w-6 h-6 text-primarydarkcolor" />
               </div>
             </div>
           </Card>
@@ -180,7 +180,7 @@ const ContactPage = () => {
               <Card key={contact.id} className="p-6 transition-colors">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-yellow-500 text-black' : 'bg-yellow-400 text-black'
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDark ? 'bg-primarydarkcolor text-black' : 'bg-primarycolor text-black'
                       }`}>
                       <User size={20} />
                     </div>
