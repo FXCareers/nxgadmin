@@ -2,14 +2,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '@/lib/api';
 
 const ROLE_MAP = {
-  1: 'user',
-  2: 'admin',
-  3: 'hr',
-  4: 'editor',
-  user: 'user',
-  admin: 'admin',
-  hr: 'hr',
-  editor: 'editor',
+  1: 'User',
+  2: 'Admin',
+  3: 'Editor',
+  4: 'Lead Manager',
+  User: 'User',
+  Admin: 'Admin',
+  Editor: 'Editor',
+  LeadManager: 'Lead Manager',
 };
 
 const normalizeUser = (user) => {
@@ -76,13 +76,39 @@ export const createUser = createAsyncThunk(
   'user/createUser',
   async (userData, { rejectWithValue }) => {
     try {
-      // Using /auth/register as requested to add a new user
-      const response = await apiClient.request('/auth/register', {
+      // Backend expects: email, password, fname, lname, phone, role_id
+      const ROLE_NAME_TO_ID = {
+        User: 1,
+        Admin: 2,
+        Editor: 3,
+        LeadManager: 4,
+        user: 1,
+        admin: 2,
+        editor: 3,
+        leadManager: 4,
+        
+      };
+
+      const roleId =
+        userData.role_id ?? ROLE_NAME_TO_ID[userData.role] ?? 1;
+
+      const payload = {
+        email: userData.email,
+        password: userData.password,
+        fname: userData.fname,
+        lname: userData.lname,
+        phone: userData.mobile || userData.phone || '',
+        role_id: roleId,
+      };
+
+      const response = await apiClient.request('/auth/signup', {
         method: 'POST',
-        body: JSON.stringify(userData),
-        skipAuth: true, // Typically registration doesn't need auth token of another user
+        body: JSON.stringify(payload),
+        skipAuth: true,
       });
-      return response.data || response;
+
+      // Expected: { success: true, userId, message }
+      return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to create user');
     }
@@ -93,7 +119,7 @@ export const deleteUser = createAsyncThunk(
   'user/deleteUser',
   async (id, { rejectWithValue }) => {
     try {
-      await apiClient.request(`/auth/profile/${id}`, {
+      await apiClient.request(`/auth/users/${id}`, {
         method: 'DELETE',
       });
       return id;

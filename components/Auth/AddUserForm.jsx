@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createUser } from '@/store/slices/userSlice';
+import { apiClient } from '@/lib/api';
 import Input from '@/components/UI/Input';
 import Select from '@/components/UI/Select';
 import Button from '@/components/UI/Button';
@@ -10,7 +11,8 @@ import { Eye, EyeOff, User, Mail, Lock, Phone, Loader2, AlertCircle } from 'luci
 
 const AddUserForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    username: '',
+    fname: '',
+    lname: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -21,20 +23,29 @@ const AddUserForm = ({ onClose, onSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
 
+  const [isOtpStep, setIsOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpSuccess, setOtpSuccess] = useState('');
+  const [otpUserId, setOtpUserId] = useState(null);
+  const [otpLoading, setOtpLoading] = useState(false);
+
   const dispatch = useDispatch();
   const { createLoading, error } = useSelector((state) => state.user);
   const { isDark } = useSelector((state) => state.theme);
 
   const roleOptions = [
-    { value: 'admin', label: 'Admin' },
-    { value: 'editor', label: 'Editor' },
-    { value: 'hr', label: 'Hr' },
+    { value: 'User', label: 'User' },
+    { value: 'Admin', label: 'Admin' },
+    { value: 'Editor', label: 'Editor' },
+    { value: 'LeadManager', label: 'Lead Manager' }
   ];
 
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.username.trim()) errors.username = 'Username is required';
+    if (!formData.fname?.trim()) errors.fname = 'First name is required';
+    if (!formData.lname?.trim()) errors.lname = 'Last name is required';
     if (!formData.email.trim()) errors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid';
     if (!formData.password) errors.password = 'Password is required';
@@ -50,12 +61,67 @@ const AddUserForm = ({ onClose, onSuccess }) => {
     if (!validateForm()) return;
 
     try {
-      const { confirmPassword, ...userData } = formData;
-      await dispatch(createUser(userData)).unwrap();
-      onSuccess();
+      // First step: create user via /auth/signup and get userId for OTP
+      const response = await dispatch(createUser(formData)).unwrap();
+
+      const userId = response?.userId || response?.data?.userId;
+      const message = response?.message || response?.data?.message || 'OTP sent to email';
+
+      if (userId) {
+        setOtpUserId(userId);
+        setIsOtpStep(true);
+        setOtpCode('');
+        setOtpError('');
+        setOtpSuccess(message);
+      } else {
+        // If no userId returned, treat as error
+        setOtpError('Failed to start OTP verification. Please try again.');
+      }
     } catch (err) {
       // error is handled by the slice, just logging for debug
       console.error('Failed to create user:', err);
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!otpCode || otpCode.length < 4) {
+      setOtpError('Please enter the OTP sent to email.');
+      return;
+    }
+
+    if (!otpUserId) {
+      setOtpError('Missing user information. Please restart the process.');
+      return;
+    }
+
+    try {
+      setOtpLoading(true);
+      setOtpError('');
+
+      const payload = {
+        userId: otpUserId,
+        otp: otpCode,
+      };
+
+      const response = await apiClient.request('/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        skipAuth: true,
+      });
+
+      if (response?.status === 'success' || response?.success === true) {
+        setOtpSuccess('User verified successfully.');
+        onSuccess();
+      } else {
+        setOtpError(response?.message || 'Failed to verify OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to verify OTP:', error);
+      setOtpError(error?.message || 'Failed to verify OTP. Please try again.');
+    } finally {
+      setOtpLoading(false);
     }
   };
 
@@ -66,6 +132,54 @@ const AddUserForm = ({ onClose, onSuccess }) => {
       setValidationErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
+
+  if (isOtpStep) {
+    return (
+      <form onSubmit={handleOtpSubmit} className="space-y-4">
+        {otpSuccess && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            <p className="text-sm text-green-700 dark:text-green-300">{otpSuccess}</p>
+          </div>
+        )}
+
+        {otpError && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-center space-x-2">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <p className="text-sm text-red-600 dark:text-red-400">{otpError}</p>
+          </div>
+        )}
+
+        <Input
+          label="Enter OTP"
+          type="text"
+          value={otpCode}
+          onChange={(e) => setOtpCode(e.target.value)}
+          placeholder="Enter OTP sent to user's email"
+          disabled={otpLoading}
+        />
+
+        <div className="flex justify-end space-x-3 pt-4">
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="secondary"
+            className="bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            disabled={otpLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={otpLoading}
+            className="flex items-center justify-center"
+          >
+            {otpLoading && <Loader2 className="w-5 h-5 animate-spin mr-2" />}
+            {otpLoading ? 'Verifying OTP...' : 'Verify & Create User'}
+          </Button>
+        </div>
+      </form>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,6 +193,34 @@ const AddUserForm = ({ onClose, onSuccess }) => {
 
       <div className="relative">
         <Input
+          label="First Name"
+          type="text"
+          name="fname"
+          value={formData.fname}
+          onChange={handleInputChange}
+          placeholder="Enter first name"
+          error={validationErrors.fname}
+          disabled={createLoading}
+          className="pl-10"
+        />
+        <User className="absolute left-3 top-9 w-4 h-4 text-gray-400" />
+      </div>
+      <div className="relative">
+        <Input
+          label="Last Name"
+          type="text"
+          name="lname"
+          value={formData.lname}
+          onChange={handleInputChange}
+          placeholder="Enter last name"
+          error={validationErrors.lname}
+          disabled={createLoading}
+          className="pl-10"
+        />
+        <User className="absolute left-3 top-9 w-4 h-4 text-gray-400" />
+      </div>
+      {/* <div className="relative">
+        <Input
           label="Username"
           type="text"
           name="username"
@@ -90,7 +232,7 @@ const AddUserForm = ({ onClose, onSuccess }) => {
           className="pl-10"
         />
         <User className="absolute left-3 top-9 w-4 h-4 text-gray-400" />
-      </div>
+      </div> */}
       <div className="relative">
         <Input
           label="Email Address"

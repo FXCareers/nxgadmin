@@ -14,9 +14,7 @@ const DashboardLayout = ({ children }) => {
 
   useEffect(() => {
     setIsClient(true);
-    // Initialize auth state
-    dispatch(initializeAuth());
-    
+
     // Check for saved theme preference or system preference (client-side only)
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
@@ -35,6 +33,11 @@ const DashboardLayout = ({ children }) => {
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
   }, [isDark, isClient]);
+
+  // Avoid hydration mismatches by rendering only on the client
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <AuthGuard>

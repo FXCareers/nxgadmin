@@ -7,27 +7,20 @@ import Card from '@/components/UI/Card';
 import { FileText, Users, Award } from 'lucide-react';
 import { fetchBlogs } from '@/store/slices/blogSlice';
 import { fetchUsers } from '@/store/slices/userSlice';
-import { fetchCareers } from '@/store/slices/careerSlice';
-import { fetchAwards } from '@/store/slices/awardSlice';
 import { fetchContacts } from '@/store/slices/contactSlice';
-import { fetchApplications } from '@/store/slices/applicationSlice';
 
 const DashboardPage = () => {
   const dispatch = useDispatch();
   const { isDark } = useSelector((state) => state.theme);
   const { blogs, totalBlog } = useSelector((state) => state.blog);
   const { users } = useSelector((state) => state.user);
-  const { awards } = useSelector((state) => state.award);
   const { contacts } = useSelector((state) => state.contact);
-  const { applications } = useSelector((state) => state.application);
 
   useEffect(() => {
-    // dispatch(fetchBlogs());
-    // dispatch(fetchUsers());
-    // dispatch(fetchCareers());
-    // dispatch(fetchAwards());
-    // dispatch(fetchContacts());
-    // dispatch(fetchApplications());
+    // Load overview data when dashboard first mounts
+    dispatch(fetchBlogs());
+    dispatch(fetchUsers());
+    dispatch(fetchContacts());
   }, [dispatch]);
 
   const stats = [
@@ -39,25 +32,11 @@ const DashboardPage = () => {
       bgColor: isDark ? 'bg-blue-900' : 'bg-blue-100',
     },
     {
-      title: 'Awards Won',
-      value: awards.length,
-      icon: Award,
-      color: 'text-primarydarkcolor',
-      bgColor: isDark ? 'bg-yellow-900' : 'bg-yellow-100',
-    },
-    {
       title: 'Contact Messages',
       value: contacts.length,
       icon: FileText,
       color: 'text-indigo-500',
       bgColor: isDark ? 'bg-indigo-900' : 'bg-indigo-100',
-    },
-    {
-      title: 'Job Applications',
-      value: applications.length,
-      icon: Users,
-      color: 'text-pink-500',
-      bgColor: isDark ? 'bg-pink-900' : 'bg-pink-100',
     },
   ];
 
