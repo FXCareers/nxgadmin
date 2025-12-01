@@ -113,6 +113,7 @@ export const updateBlog = createAsyncThunk(
       const fieldMapping = {
         title: "blog_title",
         author: "blogname", // Map author to blogname as expected by API
+        summary: "content_preview",
         seo_title: "seotitle",
         seo_description: "seodiscr",
         seo_keywords: "seokeyword",
@@ -120,7 +121,7 @@ export const updateBlog = createAsyncThunk(
 
       Object.keys(blogData).forEach((key) => {
         const value = blogData[key];
-        if (value === undefined || value === null) {
+        if (value === undefined || value === null || value === "") {
           return;
         }
 
@@ -135,11 +136,8 @@ export const updateBlog = createAsyncThunk(
         formData.append(apiFieldName, value);
       });
 
-      // Some backends expect POST with _method override for multipart updates
-      formData.append("_method", "PUT");
-
       const response = await apiClient.request(`/blogs/${id}`, {
-        method: "POST",
+        method: "PUT",
         body: formData,
       });
       const rawBlog = response.blog || response.data || response;

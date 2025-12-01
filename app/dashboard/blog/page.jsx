@@ -62,6 +62,7 @@ const BlogPage = () => {
     seo_title: "",
     seo_description: "",
     seo_keywords: "",
+    read_time: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -218,18 +219,27 @@ const BlogPage = () => {
         blogData.images = [imageFile];
       }
 
+      if (blogData.read_time !== undefined && blogData.read_time !== "") {
+        blogData.read_time = Number(blogData.read_time);
+      } else {
+        delete blogData.read_time;
+      }
+
       if (editingBlog) {
         await dispatch(
           updateBlog({ id: editingBlog.id, ...blogData })
         ).unwrap();
+        window.alert("Blog updated successfully.");
       } else {
         await dispatch(createBlog(blogData)).unwrap();
+        window.alert("Blog created successfully.");
       }
       resetForm();
       // Refresh the list
-      dispatch(fetchBlogs());
+      dispatch(fetchBlogs({ page: currentPage, limit: itemsPerPage }));
     } catch (error) {
       console.error("Error saving blog:", error);
+      window.alert(error?.message || "Failed to save blog. Please try again.");
     }
   };
 
@@ -258,6 +268,7 @@ const BlogPage = () => {
       seo_title: blog.seo_title || "",
       seo_description: blog.seo_description || "",
       seo_keywords: blog.seo_keywords || "",
+      read_time: blog.read_time || "",
     });
 
     // Set image preview if blog has an image
@@ -309,6 +320,7 @@ const BlogPage = () => {
       seo_title: "",
       seo_description: "",
       seo_keywords: "",
+      read_time: "",
     });
     setEditingBlog(null);
     setImageFile(null);
@@ -776,6 +788,16 @@ const BlogPage = () => {
                   }
                   placeholder="Enter URL slug"
                   required
+                />
+                <Input
+                  label="Read Time (minutes)"
+                  type="number"
+                  min="0"
+                  value={formData.read_time}
+                  onChange={(e) =>
+                    setFormData({ ...formData, read_time: e.target.value })
+                  }
+                  placeholder="Estimated read time"
                 />
                 <Input
                   label="Tags"
