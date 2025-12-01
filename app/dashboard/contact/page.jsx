@@ -2,19 +2,19 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchContacts, clearError } from '@/store/slices/contactSlice';
+import { fetchContacts, deleteContact } from '@/store/slices/contactSlice';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import Card from '@/components/UI/Card';
 import Pagination from '@/components/UI/Pagination';
-import useScreenHeight from '@/hooks/useScreenHeight';
-import { MessageSquare, Mail, Phone, Calendar, User, Building, Loader2, AlertCircle } from 'lucide-react';
+import { MessageSquare, Mail, Phone, Calendar, User, Building, Loader2, AlertCircle, Trash2 } from 'lucide-react';
 
 const ContactPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { contacts, loading, error } = useSelector((state) => state.contact);
+  const [contactToDelete, setContactToDelete] = useState(null);
+  const { contacts, loading, error, deleteLoading } = useSelector((state) => state.contact);
   const { isDark } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
-  const itemsPerPage = useScreenHeight();
+  const itemsPerPage = 9;
 
   // Calculate pagination
   const totalItems = Array.isArray(contacts) ? contacts.length : 0;
@@ -25,6 +25,23 @@ const ContactPage = () => {
     Array.isArray(contacts) ? contacts.slice(startIndex, endIndex) : [],
     [contacts, startIndex, endIndex]
   );
+
+  const monthlyContacts = useMemo(() => {
+    if (!Array.isArray(contacts)) return 0;
+    return contacts.filter(contact => {
+      const contactDate = new Date(contact.created_at);
+      const currentDate = new Date();
+      return (
+        contactDate.getMonth() === currentDate.getMonth() &&
+        contactDate.getFullYear() === currentDate.getFullYear()
+      );
+    }).length;
+  }, [contacts]);
+
+  const contactsWithSubject = useMemo(() => {
+    if (!Array.isArray(contacts)) return 0;
+    return contacts.filter(contact => contact.subject).length;
+  }, [contacts]);
 
   // Fetch contacts on component mount
   useEffect(() => {
@@ -41,6 +58,21 @@ const ContactPage = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const handleDelete = async (contactId) => {
+    if (!contactId) return;
+    const confirmed = window.confirm('Delete this contact message? This action cannot be undone.');
+    if (!confirmed) return;
+
+    setContactToDelete(contactId);
+    try {
+      await dispatch(deleteContact(contactId)).unwrap();
+    } catch (err) {
+      console.error('Failed to delete contact:', err);
+    } finally {
+      setContactToDelete(null);
+    }
   };
 
   if (loading && contacts.length === 0) {
@@ -125,12 +157,7 @@ const ContactPage = () => {
                 </p>
                 <p className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'
                   }`}>
-                  {Array.isArray(contacts) ? contacts.filter(contact => {
-                    const contactDate = new Date(contact.created_at);
-                    const currentDate = new Date();
-                    return contactDate.getMonth() === currentDate.getMonth() &&
-                      contactDate.getFullYear() === currentDate.getFullYear();
-                  }).length : 0}
+                  {monthlyContacts}
                 </p>
               </div>
               <div className={`p-3 rounded-full ${isDark ? 'bg-green-900' : 'bg-green-100'
@@ -145,11 +172,11 @@ const ContactPage = () => {
               <div>
                 <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'
                   }`}>
-                  Companies
+                  Subjects Provided
                 </p>
                 <p className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'
                   }`}>
-                  {Array.isArray(contacts) ? contacts.filter(contact => contact.companyName).length : 0}
+                  {contactsWithSubject}
                 </p>
               </div>
               <div className={`p-3 rounded-full ${isDark ? 'bg-yellow-900' : 'bg-yellow-100'
@@ -187,12 +214,12 @@ const ContactPage = () => {
                     <div>
                       <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'
                         }`}>
-                        {contact.fullName}
+                        {contact.name || contact.fullName || 'Unknown Contact'}
                       </h3>
-                      {contact.companyName && (
+                      {contact.subject && (
                         <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
                           }`}>
-                          {contact.companyName}
+                          {contact.subject}
                         </p>
                       )}
                     </div>
@@ -218,18 +245,9 @@ const ContactPage = () => {
                     <Phone size={16} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
                     <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
                       }`}>
-                      {contact.mobile}
+                      {contact.phone || contact.mobile || 'N/A'}
                     </span>
                   </div>
-                  {contact.companyName && (
-                    <div className="flex items-center space-x-2">
-                      <Building size={16} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
-                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                        {contact.companyName}
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 <div className={`p-3 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-50'
@@ -243,6 +261,16 @@ const ContactPage = () => {
                     {contact.message}
                   </p>
                 </div>
+
+                <button
+                  onClick={() => handleDelete(contact.id)}
+                  disabled={deleteLoading || contactToDelete === contact.id}
+                  className={`mt-4 inline-flex items-center space-x-2 text-sm font-medium px-3 py-2 rounded-md border transition-colors ${isDark ? 'border-red-700 text-red-400 hover:bg-red-900/30' : 'border-red-200 text-red-600 hover:bg-red-50'} ${deleteLoading && contactToDelete === contact.id ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
+                >
+                  <Trash2 size={16} />
+                  <span>{deleteLoading && contactToDelete === contact.id ? 'Deleting...' : 'Delete'}</span>
+                </button>
               </Card>
             ))}
           </div>

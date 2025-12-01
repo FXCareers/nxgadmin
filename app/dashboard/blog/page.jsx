@@ -613,12 +613,13 @@ const BlogPage = () => {
 
                     {blog.summary && (
                       <div className="mb-3">
-                        <div
+                        <p
                           className={`text-sm ${
                             expandedSummaries.has(blog.id) ? "" : "line-clamp-2"
                           } ${isDark ? "text-gray-400" : "text-gray-600"}`}
-                          dangerouslySetInnerHTML={{ __html: blog.summary }}
-                        />
+                        >
+                          {stripHtmlTags(blog.summary)}
+                        </p>
                         {needsTruncation(blog.summary, 80) && (
                           <button
                             onClick={() => toggleSummaryExpanded(blog.id)}
@@ -636,12 +637,13 @@ const BlogPage = () => {
                     )}
 
                     <div className="mb-4">
-                      <div
+                      <p
                         className={`text-sm ${
                           expandedContents.has(blog.id) ? "" : "line-clamp-3"
                         } ${isDark ? "text-gray-400" : "text-gray-600"}`}
-                        dangerouslySetInnerHTML={{ __html: blog.content }}
-                      />
+                      >
+                        {stripHtmlTags(blog.content)}
+                      </p>
                       {needsTruncation(blog.content, 120) && (
                         <button
                           onClick={() => toggleContentExpanded(blog.id)}
@@ -871,14 +873,14 @@ const BlogPage = () => {
 
               {/* Right Column */}
               <div className="space-y-4">
-                <RichTextEditor
+                {/* <RichTextEditor
                   label="Summary"
                   value={formData.summary}
                   onChange={handleSummaryChange}
                   placeholder="Enter a brief summary"
                   rows={2}
                   required
-                />
+                /> */}
                 <RichTextEditor
                   label="Content"
                   value={formData.content}

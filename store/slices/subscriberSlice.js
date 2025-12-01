@@ -7,13 +7,34 @@ export const fetchSubscribers = createAsyncThunk(
   async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
       const response = await apiClient.request(`/newsletter/subscribers?page=${page}&limit=${limit}`);
+      
+      const dataArray = Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response)
+          ? response
+          : Array.isArray(response?.subscribers)
+            ? response.subscribers
+            : [];
+
+      const totalItems =
+        response?.total ??
+        response?.pagination?.total ??
+        response?.meta?.total ??
+        dataArray.length;
+
+      const totalPages =
+        response?.totalPages ??
+        response?.pagination?.totalPages ??
+        response?.meta?.totalPages ??
+        Math.max(1, Math.ceil(totalItems / limit));
+
       return {
-        subscribers: response.data || response,
+        subscribers: dataArray,
         pagination: {
           currentPage: page,
           limit: limit,
-          totalItems: response.total || response.pagination?.total || (response.data ? response.data.length : 0),
-          totalPages: response.totalPages || response.pagination?.totalPages || Math.ceil((response.total || 0) / limit)
+          totalItems,
+          totalPages
         }
       };
     } catch (error) {

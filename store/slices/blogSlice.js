@@ -118,20 +118,28 @@ export const updateBlog = createAsyncThunk(
         seo_keywords: "seokeyword",
       };
 
-      for (const key in blogData) {
-        if (key === "images") {
-          if (blogData.images && blogData.images.length > 0) {
-            formData.append("blogimage", blogData.images[0]);
-          }
-        } else {
-          // Use mapped field name if available, otherwise use original key
-          const apiFieldName = fieldMapping[key] || key;
-          formData.append(apiFieldName, blogData[key]);
+      Object.keys(blogData).forEach((key) => {
+        const value = blogData[key];
+        if (value === undefined || value === null) {
+          return;
         }
-      }
+
+        if (key === "images") {
+          if (Array.isArray(value) && value.length > 0) {
+            formData.append("blogimage", value[0]);
+          }
+          return;
+        }
+
+        const apiFieldName = fieldMapping[key] || key;
+        formData.append(apiFieldName, value);
+      });
+
+      // Some backends expect POST with _method override for multipart updates
+      formData.append("_method", "PUT");
 
       const response = await apiClient.request(`/blogs/${id}`, {
-        method: "PUT",
+        method: "POST",
         body: formData,
       });
       const rawBlog = response.blog || response.data || response;

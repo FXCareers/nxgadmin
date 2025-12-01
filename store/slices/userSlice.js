@@ -1,20 +1,70 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '@/lib/api';
 
+const ROLE_MAP = {
+  1: 'user',
+  2: 'admin',
+  3: 'hr',
+  4: 'editor',
+  user: 'user',
+  admin: 'admin',
+  hr: 'hr',
+  editor: 'editor',
+};
+
+const normalizeUser = (user) => {
+  if (!user) return null;
+
+  const role = ROLE_MAP[user.role_id] ?? ROLE_MAP[user.role] ?? user.role ?? 'user';
+  const fullName = [user.fname, user.lname].filter(Boolean).join(' ').trim();
+
+  return {
+    id: user.id,
+    username: user.username || fullName || user.email || `user-${user.id}`,
+    name: fullName || user.username || user.email || 'Unknown User',
+    email: user.email || '',
+    fname: user.fname || '',
+    lname: user.lname || '',
+    phone: user.phone || user.mobile || '',
+    role,
+    role_id: user.role_id ?? null,
+    is_verified: user.is_verified ?? false,
+    auth_provider: user.auth_provider || 'manual',
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+    raw: user,
+  };
+};
+
 // Async thunks for user operations
 export const fetchUsers = createAsyncThunk(
   'user/fetchUsers',
-  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await apiClient.request(`/auth/users?page=${page}&limit=${limit}`);
+      const response = await apiClient.request(`/auth/users`, {
+        method: 'GET',
+      });
+
+      const usersArray = Array.isArray(response?.users)
+        ? response.users
+        : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response)
+            ? response
+            : [];
+
+      const normalizedUsers = usersArray
+        .map(normalizeUser)
+        .filter(Boolean);
+
       return {
-        users: response.data || response,
+        users: normalizedUsers,
         pagination: {
-          currentPage: page,
-          limit: limit,
-          totalItems: response.total || response.pagination?.total || (response.data ? response.data.length : 0),
-          totalPages: response.totalPages || response.pagination?.totalPages || Math.ceil((response.total || 0) / limit)
-        }
+          currentPage: 1,
+          limit: normalizedUsers.length || 1,
+          totalItems: normalizedUsers.length,
+          totalPages: 1,
+        },
       };
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch users');

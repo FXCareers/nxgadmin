@@ -116,25 +116,35 @@ const DashboardPage = () => {
               Recent Blogs
             </h3>
             <div className="space-y-3">
-              {blogs.slice(0, 3).map((blog) => (
-                <div key={blog.id} className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    blog.status === 'published' ? 'bg-green-500' : 'bg-primarydarkcolor'
-                  }`} />
-                  <div className="flex-1">
-                    <p className={`text-sm font-medium ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      {blog.title}
-                    </p>
-                    <p className={`text-xs ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      {blog.author} • {blog.date}
-                    </p>
+              {blogs.slice(0, 3).map((blog) => {
+                const authorName = typeof blog.author === 'string'
+                  ? blog.author
+                  : [blog.author?.fname, blog.author?.lname].filter(Boolean).join(' ').trim()
+                    || blog.author?.name
+                    || blog.author?.email
+                    || 'Unknown author';
+                const publishedDate = blog.date || blog.created_at || blog.updated_at || 'N/A';
+
+                return (
+                  <div key={blog.id} className="flex items-center space-x-3">
+                    <div className={`w-2 h-2 rounded-full ${
+                      blog.status === 'published' ? 'bg-green-500' : 'bg-primarydarkcolor'
+                    }`} />
+                    <div className="flex-1">
+                      <p className={`text-sm font-medium ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {blog.title}
+                      </p>
+                      <p className={`text-xs ${
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
+                        {authorName} • {publishedDate}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 

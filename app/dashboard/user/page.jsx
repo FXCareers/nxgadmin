@@ -6,45 +6,33 @@ import { fetchUsers, deleteUser, clearError } from '@/store/slices/userSlice';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import Button from '@/components/UI/Button';
 import Modal from '@/components/UI/Modal';
-import Pagination from '@/components/UI/Pagination';
 import AddUserForm from '@/components/Auth/AddUserForm';
-import { Plus, Trash2, Loader2, AlertCircle, User as UserIcon, Shield } from 'lucide-react';
+import { Plus, Trash2, Loader2, AlertCircle, User as UserIcon } from 'lucide-react';
 
 const UserPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { 
-    users, 
+    users = [], 
     loading, 
     error, 
     deleteLoading, 
-    pagination 
   } = useSelector((state) => state.user);
   const { isDark } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchUsers({ page: pagination.currentPage, limit: pagination.limit }));
+    dispatch(fetchUsers());
     return () => {
       dispatch(clearError());
     };
-  }, [dispatch, pagination.currentPage, pagination.limit]);
-
-  const handlePageChange = (newPage) => {
-    dispatch(fetchUsers({ page: newPage, limit: pagination.limit }));
-  };
+  }, [dispatch]);
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await dispatch(deleteUser(id)).unwrap();
-        // If current page becomes empty and it's not the first page, go to previous page
-        if (users.length === 1 && pagination.currentPage > 1) {
-          dispatch(fetchUsers({ page: pagination.currentPage - 1, limit: pagination.limit }));
-        } else {
-          // Refetch current page to get updated data
-          dispatch(fetchUsers({ page: pagination.currentPage, limit: pagination.limit }));
-        }
+        dispatch(fetchUsers());
       } catch (err) {
         console.error('Failed to delete user:', err);
       }
@@ -53,8 +41,7 @@ const UserPage = () => {
 
   const handleAddUserSuccess = () => {
     setIsModalOpen(false);
-    // Refetch current page to include the new user or adjust pagination
-    dispatch(fetchUsers({ page: pagination.currentPage, limit: pagination.limit }));
+    dispatch(fetchUsers());
   };
 
   const formatDate = (dateString) => {
@@ -120,17 +107,17 @@ const UserPage = () => {
               </tr>
             </thead>
             <tbody className={`divide-y ${isDark ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
-              {users.map((user) => (
+              {Array.isArray(users) && users.map((user) => (
                 <tr key={user.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{user.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.username}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.name || user.username}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300' : 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'}`}>
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.mobile || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{user.phone || 'N/A'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{formatDate(user.created_at)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -145,7 +132,7 @@ const UserPage = () => {
               ))}
             </tbody>
           </table>
-          {pagination.totalItems === 0 && !loading && (
+          {!users.length && !loading && (
              <div className="text-center py-12">
                 <UserIcon className={`w-12 h-12 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
                 <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>No Users Found</h3>
@@ -155,15 +142,6 @@ const UserPage = () => {
              </div>
           )}
         </div>
-
-        {pagination.totalPages > 1 && (
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalItems={pagination.totalItems}
-            itemsPerPage={pagination.limit}
-            onPageChange={handlePageChange}
-          />
-        )}
 
         <Modal
           isOpen={isModalOpen}
