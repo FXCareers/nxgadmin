@@ -38,7 +38,12 @@ export const createSeoEntry = createAsyncThunk(
         body: JSON.stringify(payload),
       });
 
-      const created = response?.data || response;
+      // Ensure we only return the actual created SEO record,
+      // not the entire API wrapper object like { success, message, data }
+      const created = response && typeof response === 'object' && 'data' in response
+        ? response.data
+        : response;
+
       return created;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to create SEO entry');
@@ -63,7 +68,12 @@ export const updateSeoEntry = createAsyncThunk(
         body: JSON.stringify(payload),
       });
 
-      const updated = response?.data || response;
+      // Ensure we only return the actual updated SEO record,
+      // not the entire API wrapper object like { success, message, data }
+      const updated = response && typeof response === 'object' && 'data' in response
+        ? response.data
+        : response;
+
       return updated;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to update SEO entry');

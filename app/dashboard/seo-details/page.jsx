@@ -11,6 +11,18 @@ import Input from '@/components/UI/Input';
 import Textarea from '@/components/UI/Textarea';
 import { Edit, Loader2, AlertCircle, Globe, Plus, Trash2 } from 'lucide-react';
 
+// Safely render any value in JSX to avoid passing raw objects as children
+const safeRender = (value) => {
+  if (value == null) return '';
+  if (typeof value === 'string' || typeof value === 'number') return value;
+  // Fallback for objects/arrays/other types
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
 const SeoPage = () => {
   const dispatch = useDispatch();
   const { items, loading, createLoading, updateLoading, deleteLoading, error } = useSelector((state) => state.seo);
@@ -184,29 +196,29 @@ const SeoPage = () => {
               {Array.isArray(items) && items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {item.id}
+                    {safeRender(item.id)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm  max-w-[250px]text-primarycolor break-all">
                     <div className="flex items-center space-x-2">
                       <Globe className="w-4 h-4" />
                       <a
-                        href={item.page_url}
+                        href={typeof item.page_url === 'string' ? item.page_url : '#'}
                         target="_blank"
                         rel="noreferrer"
                         className="underline"
                       >
-                        {item.page_url}
+                        {safeRender(item.page_url)}
                       </a>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 max-w-[250px] truncate">
-                    {item.seotitle}
+                    {safeRender(item.seotitle)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
-                    {item.seokeyword}
+                    {safeRender(item.seokeyword)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
-                    {item.seodiscr}
+                    {safeRender(item.seodiscr)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
                     <button                      
