@@ -35,10 +35,10 @@ const AddUserForm = ({ onClose, onSuccess }) => {
   const { isDark } = useSelector((state) => state.theme);
 
   const roleOptions = [
-    { value: 'User', label: 'User' },
-    { value: 'Admin', label: 'Admin' },
-    { value: 'Editor', label: 'Editor' },
-    { value: 'LeadManager', label: 'Lead Manager' }
+    { value: 'user', label: 'User' },
+    { value: 'admin', label: 'Admin' },
+    { value: 'editor', label: 'Editor' },
+    { value: 'leadmanager', label: 'Lead Manager' },
   ];
 
   const validateForm = () => {
@@ -86,8 +86,8 @@ const AddUserForm = ({ onClose, onSuccess }) => {
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
 
-    if (!otpCode || otpCode.length < 4) {
-      setOtpError('Please enter the OTP sent to email.');
+    if (!otpCode || otpCode.length < 6) {
+      setOtpError('Please enter the 6-digit OTP sent to email.');
       return;
     }
 

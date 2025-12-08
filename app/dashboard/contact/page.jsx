@@ -211,7 +211,7 @@ const ContactPage = () => {
                       }`}>
                       <User size={20} />
                     </div>
-                    <div>
+                    <div className="max-w-[160px] truncate text-ellipsis overflow-hidden">
                       <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'
                         }`}>
                         {contact.name || contact.fullName || 'Unknown Contact'}

@@ -2,20 +2,25 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '@/lib/api';
 
 const ROLE_MAP = {
-  1: 'User',
-  2: 'Admin',
-  3: 'Editor',
-  4: 'Lead Manager',
-  User: 'User',
-  Admin: 'Admin',
-  Editor: 'Editor',
-  LeadManager: 'Lead Manager',
+  1: 'user',
+  2: 'admin',
+  3: 'editor',
+  4: 'leadmanager',
+  user: 'user',
+  admin: 'admin',
+  editor: 'editor',
+  leadmanager: 'leadmanager',
+  leadManager: 'leadmanager',
+  User: 'user',
+  Admin: 'admin',
+  Editor: 'editor',
+  LeadManager: 'leadmanager',
 };
 
 const normalizeUser = (user) => {
   if (!user) return null;
 
-  const role = ROLE_MAP[user.role_id] ?? ROLE_MAP[user.role] ?? user.role ?? 'user';
+  const role = ROLE_MAP[user.role_id] ?? ROLE_MAP[user.role] ?? (typeof user.role === 'string' ? user.role.toLowerCase() : user.role) ?? 'user';
   const fullName = [user.fname, user.lname].filter(Boolean).join(' ').trim();
 
   return {
@@ -86,6 +91,7 @@ export const createUser = createAsyncThunk(
         admin: 2,
         editor: 3,
         leadManager: 4,
+        leadmanager: 4,
         
       };
 

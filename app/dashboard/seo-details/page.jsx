@@ -172,22 +172,22 @@ const SeoPage = () => {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className={isDark ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Page URL
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   SEO Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   SEO Keywords
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   SEO Description
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -195,12 +195,12 @@ const SeoPage = () => {
             <tbody className={`divide-y ${isDark ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
               {Array.isArray(items) && items.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     {safeRender(item.id)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm  max-w-[250px]text-primarycolor break-all">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm max-w-[250px] text-primarycolor break-all truncate">
                     <div className="flex items-center space-x-2">
-                      <Globe className="w-4 h-4" />
+                      
                       <a
                         href={typeof item.page_url === 'string' ? item.page_url : '#'}
                         target="_blank"
@@ -211,16 +211,16 @@ const SeoPage = () => {
                       </a>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 max-w-[250px] truncate">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 max-w-[150px] truncate">
                     {safeRender(item.seotitle)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
+                  <td className="px-4 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
                     {safeRender(item.seokeyword)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
+                  <td className="px-4 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
                     {safeRender(item.seodiscr)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                  <td className="px-4 py-4 whitespace-nowrap text-right text-sm space-x-2">
                     <button                      
                       onClick={() => openEditModal(item)}
                       disabled={updateLoading && editingItem?.id === item.id}

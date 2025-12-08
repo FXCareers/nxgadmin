@@ -4,12 +4,19 @@ import { apiClient } from '@/lib/api';
 const ROLE_MAP = {
   1: 'user',
   2: 'admin',
-  3: 'hr',
-  4: 'editor',
+  3: 'editor',
+  4: 'leadmanager',
   user: 'user',
   admin: 'admin',
-  hr: 'hr',
   editor: 'editor',
+  leadmanager: 'leadmanager',
+  leadManager: 'leadmanager',
+  User: 'user',
+  Admin: 'admin',
+  Editor: 'editor',
+  LeadManager: 'leadmanager',
+  hr: 'hr',
+  HR: 'hr',
 };
 
 const normalizeUserRole = (user) => {
