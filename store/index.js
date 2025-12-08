@@ -5,6 +5,7 @@ import userReducer from './slices/userSlice';
 import careerReducer from './slices/careerSlice';
 import awardReducer from './slices/awardSlice';
 import seoReducer from './slices/seoSlice';
+import faqReducer from './slices/faqSlice';
 import themeReducer from './slices/themeSlice';
 import contactReducer from './slices/contactSlice';
 import applicationReducer from './slices/applicationSlice';
@@ -18,6 +19,7 @@ export const store = configureStore({
     career: careerReducer,
     award: awardReducer,
     seo: seoReducer,
+    faq: faqReducer,
     theme: themeReducer,
     contact: contactReducer,
     application: applicationReducer,
