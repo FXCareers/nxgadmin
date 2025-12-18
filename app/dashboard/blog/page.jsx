@@ -51,18 +51,18 @@ const BlogPage = () => {
 
   const [formData, setFormData] = useState({
     title: "",
+    blogname: "",
     content: "",
     summary: "",
-    author: "",
     slug: "",
-    tags: "",
-    status: "published",
+    //tags: "",
+    // status: "published",
     category_id: "",
     subcategory_id: "",
     seo_title: "",
     seo_description: "",
     seo_keywords: "",
-    read_time: "",
+    //read_time: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -215,15 +215,52 @@ const BlogPage = () => {
     try {
       const blogData = { ...formData };
 
+      // Temporarily remove status from payload so backend uses its own default
+      delete blogData.status;
+
+      // Ensure blogname is present; fall back to title if empty
+      if (!blogData.blogname || !blogData.blogname.trim()) {
+        blogData.blogname = blogData.title || "";
+      }
+
+      // Normalize category_id to number
+      if (blogData.category_id !== "" && blogData.category_id !== undefined) {
+        blogData.category_id = Number(blogData.category_id);
+      }
+
+      // Subcategory: if not chosen, don't send this field at all.
+      // If chosen, send a positive number; otherwise omit it.
+      if (
+        blogData.subcategory_id === "" ||
+        blogData.subcategory_id === undefined ||
+        blogData.subcategory_id === null ||
+        blogData.subcategory_id === "null" ||
+        blogData.subcategory_id === "0"
+      ) {
+        delete blogData.subcategory_id;
+      } else {
+        const parsedSub = Number(blogData.subcategory_id);
+        if (Number.isFinite(parsedSub) && parsedSub > 0) {
+          blogData.subcategory_id = parsedSub;
+        } else {
+          delete blogData.subcategory_id;
+        }
+      }
       if (imageFile) {
         blogData.images = [imageFile];
       }
 
-      if (blogData.read_time !== undefined && blogData.read_time !== "") {
-        blogData.read_time = Number(blogData.read_time);
-      } else {
-        delete blogData.read_time;
-      }
+      // Only send read_time if it is a positive number; otherwise omit
+      // if (blogData.read_time !== undefined && blogData.read_time !== "") {
+      //   const rt = Number(blogData.read_time);
+      //   if (Number.isFinite(rt) && rt > 0) {
+      //     blogData.read_time = rt;
+      //   } else {
+      //     delete blogData.read_time;
+      //   }
+      // } else {
+      //   delete blogData.read_time;
+      // }
 
       if (editingBlog) {
         await dispatch(
@@ -248,15 +285,12 @@ const BlogPage = () => {
     setEditingBlog(blog);
     setFormData({
       title: blog.title || "",
+      blogname: blog._original?.blogname || blog.blogname || blog.title || "",
       content: blog.content || "",
       summary: blog.summary || "",
-      author:
-        typeof blog.author === "object" && blog.author
-          ? `${blog.author.fname} ${blog.author.lname}`
-          : blog.author || blog.author_name || "",
       slug: blog.slug || "",
-      tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags || "",
-      status: blog.status || "draft",
+      //tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags || "",
+      //status: blog.status || "draft",
       category_id:
         typeof blog.category_id === "object" && blog.category_id
           ? blog.category_id.id
@@ -309,18 +343,18 @@ const BlogPage = () => {
   const resetForm = () => {
     setFormData({
       title: "",
+      blogname: "",
       content: "",
       summary: "",
-      author: "",
       slug: "",
-      tags: "",
-      status: "draft",
+      //tags: "",
+     // status: "draft",
       category_id: "",
       subcategory_id: "",
       seo_title: "",
       seo_description: "",
       seo_keywords: "",
-      read_time: "",
+      //read_time: "",
     });
     setEditingBlog(null);
     setImageFile(null);
@@ -419,12 +453,10 @@ const BlogPage = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
-            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${
-              isDark ? 'text-primarycolor' : 'text-primarycolor'
-            }`} />
-            <p className={`text-lg ${
-              isDark ? 'text-gray-300' : 'text-gray-600'
-            }`}>
+            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-primarycolor' : 'text-primarycolor'
+              }`} />
+            <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'
+              }`}>
               Loading blogs...
             </p>
           </div>
@@ -440,9 +472,8 @@ const BlogPage = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1
-              className={`text-3xl font-bold ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}>
+              className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"
+                }`}>
               Blog Management
             </h1>
             <p className={`mt-2 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -476,14 +507,12 @@ const BlogPage = () => {
         {(!Array.isArray(blogs) || blogs.length === 0) && !loading ? (
           <Card className="p-12 text-center">
             <FileText
-              className={`w-16 h-16 mx-auto mb-4 ${
-                isDark ? "text-gray-600" : "text-gray-400"
-              }`}
+              className={`w-16 h-16 mx-auto mb-4 ${isDark ? "text-gray-600" : "text-gray-400"
+                }`}
             />
             <h3
-              className={`text-xl font-semibold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}>
+              className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"
+                }`}>
               No Blog Posts Yet
             </h3>
             <p className={`mb-6 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -502,243 +531,226 @@ const BlogPage = () => {
               blogs.map((blog) => {
                 const categoryName = getCategoryName(blog);
                 return (
-                <Card
-                  key={blog.id}
-                  className="overflow-hidden transition-colors">
-                  {/* Blog Image */}
-                  <div className="aspect-video bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
-                    {(() => {
-                      const imageUrl =
-                        blog.image_url || (blog.images && blog.images[0]);
-                      const safeImageUrl = getSafeImageUrl(imageUrl);
-                      const hasError = hasImageError(imageUrl, blog.id);
+                  <Card
+                    key={blog.id}
+                    className="overflow-hidden transition-colors">
+                    {/* Blog Image */}
+                    <div className="aspect-video bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
+                      {(() => {
+                        const imageUrl =
+                          blog.image_url || (blog.images && blog.images[0]);
+                        const safeImageUrl = getSafeImageUrl(imageUrl);
+                        const hasError = hasImageError(imageUrl, blog.id);
 
-                      // Show fallback if no image URL, has error, or safeImageUrl is null
-                      if (!imageUrl || hasError || !safeImageUrl) {
-                        return (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <div className="text-center">
-                              <FileText
-                                size={48}
-                                className={
-                                  isDark ? "text-gray-500" : "text-gray-400"
-                                }
-                              />
-                              <p
-                                className={`text-sm mt-2 ${
-                                  isDark ? "text-gray-500" : "text-gray-400"
-                                }`}>
-                                No Image
-                              </p>
+                        // Show fallback if no image URL, has error, or safeImageUrl is null
+                        if (!imageUrl || hasError || !safeImageUrl) {
+                          return (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <div className="text-center">
+                                <FileText
+                                  size={48}
+                                  className={
+                                    isDark ? "text-gray-500" : "text-gray-400"
+                                  }
+                                />
+                                <p
+                                  className={`text-sm mt-2 ${isDark ? "text-gray-500" : "text-gray-400"
+                                    }`}>
+                                  No Image
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      }
+                          );
+                        }
 
-                      // Only render Image component if we have a valid src
-                      try {
-                        return (
-                          <Image
-                            src={safeImageUrl}
-                            alt={blog.title || "Blog image"}
-                            fill
-                            className="object-cover transition-opacity duration-300"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            onError={() => handleImageError(imageUrl, blog.id)}
-                            placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyLli+ZCXRTnortOrVgRQbNCGpFBWOvvjmOUDyQhzX1FWmYpvqyTz1z1Xz/AK4t7dZUgmgpX2mhQc5QsLrJBOqvOv8AKj/XE9wAFctGAUnz8mB8F1zUNNtRJH1JFJl6E4nqj0tX9L2+b1/amwlvlCFBq8B7GvdXMTJ05oByX0NJ+Jp9vJOVXHr3sKy5Wuqxgl9h8xz7//Z"
-                          />
-                        );
-                      } catch (error) {
-                        console.error("Error rendering image:", error);
-                        return (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <div className="text-center">
-                              <FileText
-                                size={48}
-                                className={
-                                  isDark ? "text-gray-500" : "text-gray-400"
-                                }
-                              />
-                              <p
-                                className={`text-sm mt-2 ${
-                                  isDark ? "text-gray-500" : "text-gray-400"
-                                }`}>
-                                Image Error
-                              </p>
+                        // Only render Image component if we have a valid src
+                        try {
+                          return (
+                            <Image
+                              src={safeImageUrl}
+                              alt={blog.title || "Blog image"}
+                              fill
+                              className="object-cover transition-opacity duration-300"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              onError={() => handleImageError(imageUrl, blog.id)}
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyLli+ZCXRTnortOrVgRQbNCGpFBWOvvjmOUDyQhzX1FWmYpvqyTz1z1Xz/AK4t7dZUgmgpX2mhQc5QsLrJBOqvOv8AKj/XE9wAFctGAUnz8mB8F1zUNNtRJH1JFJl6E4nqj0tX9L2+b1/amwlvlCFBq8B7GvdXMTJ05oByX0NJ+Jp9vJOVXHr3sKy5Wuqxgl9h8xz7//Z"
+                            />
+                          );
+                        } catch (error) {
+                          console.error("Error rendering image:", error);
+                          return (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <div className="text-center">
+                                <FileText
+                                  size={48}
+                                  className={
+                                    isDark ? "text-gray-500" : "text-gray-400"
+                                  }
+                                />
+                                <p
+                                  className={`text-sm mt-2 ${isDark ? "text-gray-500" : "text-gray-400"
+                                    }`}>
+                                  Image Error
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                    }
-                  })()}
-                </div>
-
-                <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          isDark
-                            ? "bg-gray-700 text-gray-300"
-                            : getStatusColor(blog.status)
-                        }`}>
-                        {blog.status?.charAt(0).toUpperCase() +
-                          blog.status?.slice(1)}
-                      </span>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(blog)}
-                          disabled={updateLoading}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDark
-                              ? "text-gray-400 hover:text-yellow-400 hover:bg-gray-700"
-                              : "text-gray-500 hover:text-yellow-600 hover:bg-gray-100"
-                          } disabled:opacity-50`}>
-                          {updateLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Edit size={16} />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(blog.id)}
-                          disabled={deleteLoading}
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDark
-                              ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
-                              : "text-gray-500 hover:text-red-600 hover:bg-gray-100"
-                          } disabled:opacity-50`}>
-                          {deleteLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 size={16} />
-                          )}
-                        </button>
-                      </div>
+                          );
+                        }
+                      })()}
                     </div>
 
-                    <h3
-                      className={`text-lg font-semibold mb-2 line-clamp-2 ${
-                        isDark ? "text-white" : "text-gray-900"
-                      }`}>
-                      {blog.title}
-                    </h3>
-
-                    {blog.summary && (
-                      <div className="mb-3">
-                        <p
-                          className={`text-sm ${
-                            expandedSummaries.has(blog.id) ? "" : "line-clamp-2"
-                          } ${isDark ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          {stripHtmlTags(blog.summary)}
-                        </p>
-                        {needsTruncation(blog.summary, 80) && (
-                          <button
-                            onClick={() => toggleSummaryExpanded(blog.id)}
-                            className={`text-xs mt-1 font-medium transition-colors ${
-                              isDark
-                                ? "text-yellow-400 hover:text-yellow-300"
-                                : "text-yellow-600 hover:text-yellow-700"
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${isDark
+                              ? "bg-gray-700 text-gray-300"
+                              : getStatusColor(blog.status)
                             }`}>
-                            {expandedSummaries.has(blog.id)
-                              ? "Show less"
-                              : "Read more"}
+                          {blog.status?.charAt(0).toUpperCase() +
+                            blog.status?.slice(1)}
+                        </span>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEdit(blog)}
+                            disabled={updateLoading}
+                            className={`p-2 rounded-lg transition-colors ${isDark
+                                ? "text-gray-400 hover:text-yellow-400 hover:bg-gray-700"
+                                : "text-gray-500 hover:text-yellow-600 hover:bg-gray-100"
+                              } disabled:opacity-50`}>
+                            {updateLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Edit size={16} />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(blog.id)}
+                            disabled={deleteLoading}
+                            className={`p-2 rounded-lg transition-colors ${isDark
+                                ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
+                                : "text-gray-500 hover:text-red-600 hover:bg-gray-100"
+                              } disabled:opacity-50`}>
+                            {deleteLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      <h3
+                        className={`text-lg font-semibold mb-2 line-clamp-2 ${isDark ? "text-white" : "text-gray-900"
+                          }`}>
+                        {blog.title}
+                      </h3>
+
+                      {blog.summary && (
+                        <div className="mb-3">
+                          <p
+                            className={`text-sm ${expandedSummaries.has(blog.id) ? "" : "line-clamp-2"
+                              } ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                          >
+                            {stripHtmlTags(blog.summary)}
+                          </p>
+                          {needsTruncation(blog.summary, 80) && (
+                            <button
+                              onClick={() => toggleSummaryExpanded(blog.id)}
+                              className={`text-xs mt-1 font-medium transition-colors ${isDark
+                                  ? "text-yellow-400 hover:text-yellow-300"
+                                  : "text-yellow-600 hover:text-yellow-700"
+                                }`}>
+                              {expandedSummaries.has(blog.id)
+                                ? "Show less"
+                                : "Read more"}
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="mb-4">
+                        <p
+                          className={`text-sm ${expandedContents.has(blog.id) ? "" : "line-clamp-3"
+                            } ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                        >
+                          {stripHtmlTags(blog.content)}
+                        </p>
+                        {needsTruncation(blog.content, 120) && (
+                          <button
+                            onClick={() => toggleContentExpanded(blog.id)}
+                            className={`text-xs mt-1 font-medium transition-colors ${isDark
+                                ? 'text-primarycolor hover:text-yellow-300'
+                                : 'text-primarycolor hover:text-yellow-700'
+                              }`}
+                          >
+                            {expandedContents.has(blog.id) ? 'Show less' : 'Read more'}
                           </button>
                         )}
                       </div>
-                    )}
 
-                    <div className="mb-4">
-                      <p
-                        className={`text-sm ${
-                          expandedContents.has(blog.id) ? "" : "line-clamp-3"
-                        } ${isDark ? "text-gray-400" : "text-gray-600"}`}
-                      >
-                        {stripHtmlTags(blog.content)}
-                      </p>
-                      {needsTruncation(blog.content, 120) && (
-                        <button
-                          onClick={() => toggleContentExpanded(blog.id)}
-                          className={`text-xs mt-1 font-medium transition-colors ${
-                            isDark 
-                              ? 'text-primarycolor hover:text-yellow-300' 
-                              : 'text-primarycolor hover:text-yellow-700'
-                          }`}
-                        >
-                          {expandedContents.has(blog.id) ? 'Show less' : 'Read more'}
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="space-y-2 mb-4">
-                      {categoryName && (
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              isDark ? "bg-primarycolor" : "bg-primarycolor"
-                            }`}
-                          />
-                          <span
-                            className={`text-sm font-medium ${
-                              isDark ? "text-primarycolor" : "text-primarycolor"
-                            }`}>
-                            {categoryName}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex items-center space-x-2">
-                        <Calendar
-                          size={14}
-                          className={isDark ? "text-gray-400" : "text-gray-500"}
-                        />
-                        <span
-                          className={`text-sm ${
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          }`}>
-                          {formatDate(blog.created_at)}
-                        </span>
-                      </div>
-                      {blog.tags && (
-                        <div className="flex items-center space-x-2">
-                          <Tag
-                            size={14}
-                            className={
-                              isDark ? "text-gray-400" : "text-gray-500"
-                            }
-                          />
-                          <span
-                            className={`text-sm ${
-                              isDark ? "text-gray-400" : "text-gray-600"
-                            }`}>
-                            {formatTags(blog.tags)}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Read Time */}
-                      {blog.read_time > 0 && (
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className={`w-3 h-3 rounded-full border ${
-                              isDark ? "border-gray-400" : "border-gray-500"
-                            } flex items-center justify-center`}>
+                      <div className="space-y-2 mb-4">
+                        {categoryName && (
+                          <div className="flex items-center space-x-2">
                             <div
-                              className={`w-1 h-1 rounded-full ${
-                                isDark ? "bg-gray-400" : "bg-gray-500"
-                              }`}
+                              className={`w-2 h-2 rounded-full ${isDark ? "bg-primarycolor" : "bg-primarycolor"
+                                }`}
                             />
+                            <span
+                              className={`text-sm font-medium ${isDark ? "text-primarycolor" : "text-primarycolor"
+                                }`}>
+                              {categoryName}
+                            </span>
                           </div>
+                        )}
+                        <div className="flex items-center space-x-2">
+                          <Calendar
+                            size={14}
+                            className={isDark ? "text-gray-400" : "text-gray-500"}
+                          />
                           <span
-                            className={`text-sm ${
-                              isDark ? "text-gray-400" : "text-gray-600"
-                            }`}>
-                            {blog.read_time} min read
+                            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
+                              }`}>
+                            {formatDate(blog.created_at)}
                           </span>
                         </div>
-                      )}
+                        {blog.tags && (
+                          <div className="flex items-center space-x-2">
+                            <Tag
+                              size={14}
+                              className={
+                                isDark ? "text-gray-400" : "text-gray-500"
+                              }
+                            />
+                            <span
+                              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
+                                }`}>
+                              {formatTags(blog.tags)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Read Time */}
+                        {blog.read_time > 0 && (
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={`w-3 h-3 rounded-full border ${isDark ? "border-gray-400" : "border-gray-500"
+                                } flex items-center justify-center`}>
+                              <div
+                                className={`w-1 h-1 rounded-full ${isDark ? "bg-gray-400" : "bg-gray-500"
+                                  }`}
+                              />
+                            </div>
+                            <span
+                              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
+                                }`}>
+                              {blog.read_time} min read
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
                 );
               })}
           </div>
@@ -772,12 +784,12 @@ const BlogPage = () => {
                   required
                 />
                 <Input
-                  label="Author"
-                  value={formData.author}
+                  label="Blog Name"
+                  value={formData.blogname}
                   onChange={(e) =>
-                    setFormData({ ...formData, author: e.target.value })
+                    setFormData({ ...formData, blogname: e.target.value })
                   }
-                  placeholder="Enter author name"
+                  placeholder="Enter blog name"
                   required
                 />
                 <Input
@@ -789,7 +801,16 @@ const BlogPage = () => {
                   placeholder="Enter URL slug"
                   required
                 />
-                <Input
+                {/* <Select
+                  label="Status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value })
+                  }
+                  options={statusOptions}
+                  required
+                /> */}
+                {/* <Input
                   label="Read Time (minutes)"
                   type="number"
                   min="0"
@@ -798,53 +819,24 @@ const BlogPage = () => {
                     setFormData({ ...formData, read_time: e.target.value })
                   }
                   placeholder="Estimated read time"
-                />
-                <Input
-                  label="Tags"
-                  value={formData.tags}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tags: e.target.value })
-                  }
-                  placeholder="Enter tags separated by commas"
-                />
+                /> */}
 
-                {/* Category and Subcategory */}
-                <Select
-                  label="Category"
-                  value={formData.category_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category_id: e.target.value })
-                  }
-                  options={categoryOptions}
-                  required
-                />
-
-                <Select
-                  label="Subcategory"
-                  value={formData.subcategory_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, subcategory_id: e.target.value })
-                  }
-                  options={subcategoryOptions}
-                />
 
                 {/* Image Upload */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-2 ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}>
+                    className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"
+                      }`}>
                     Featured Image
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${
-                      isDark 
-                        ? 'bg-gray-800 border-gray-600 text-white' 
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${isDark
+                        ? 'bg-gray-800 border-gray-600 text-white'
                         : 'bg-white border-gray-300 text-gray-900'
-                    }`}
+                      }`}
                   />
                   {imagePreview && (
                     <div className="mt-2 relative h-32 w-full">
@@ -895,14 +887,34 @@ const BlogPage = () => {
 
               {/* Right Column */}
               <div className="space-y-4">
-                {/* <RichTextEditor
-                  label="Summary"
-                  value={formData.summary}
-                  onChange={handleSummaryChange}
-                  placeholder="Enter a brief summary"
-                  rows={2}
-                  required
+                {/* <Input
+                  label="Tags"
+                  value={formData.tags}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tags: e.target.value })
+                  }
+                  placeholder="Enter tags separated by commas"
                 /> */}
+
+                {/* Category and Subcategory */}
+                <Select
+                  label="Category"
+                  value={formData.category_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category_id: e.target.value })
+                  }
+                  options={categoryOptions}
+                  required
+                />
+
+                <Select
+                  label="Subcategory"
+                  value={formData.subcategory_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subcategory_id: e.target.value })
+                  }
+                  options={subcategoryOptions}
+                />
                 <RichTextEditor
                   label="Content"
                   value={formData.content}
@@ -917,9 +929,8 @@ const BlogPage = () => {
             {/* SEO Section */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
               <h3
-                className={`text-lg font-semibold mb-4 ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}>
+                className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"
+                  }`}>
                 SEO Settings
               </h3>
               <div className="grid grid-cols-1 gap-4">
@@ -974,8 +985,8 @@ const BlogPage = () => {
                       ? "Updating..."
                       : "Update Blog"
                     : createLoading
-                    ? "Creating..."
-                    : "Create Blog"}
+                      ? "Creating..."
+                      : "Create Blog"}
                 </span>
               </Button>
             </div>

@@ -68,32 +68,45 @@ export const createBlog = createAsyncThunk(
     try {
       const formData = new FormData();
 
-      // Map normalized field names to API field names
+      // ✅ Exact API field mapping (matches Postman)
       const fieldMapping = {
         title: "blog_title",
-        author: "blogname", // Map author to blogname as expected by API
+        blogname: "blogname",
+        content: "content",
         seo_title: "seotitle",
         seo_description: "seodiscr",
         seo_keywords: "seokeyword",
+        slug: "slug",
+        category_id: "category_id",
+        subcategory_id: "subcategory_id",
       };
 
       for (const key in blogData) {
+        const value = blogData[key];
+
+        // 🚫 Skip empty / null values (important for subcategory)
+        if (value === null || value === undefined || value === "") continue;
+
+        // ✅ Image upload
         if (key === "images") {
-          if (blogData.images && blogData.images.length > 0) {
-            formData.append("blogimage", blogData.images[0]);
+          if (Array.isArray(value) && value.length > 0) {
+            formData.append("blogimage", value[0]);
           }
-        } else {
-          // Use mapped field name if available, otherwise use original key
-          const apiFieldName = fieldMapping[key] || key;
-          formData.append(apiFieldName, blogData[key]);
+          continue;
         }
+
+        // 🚫 Do NOT send content_preview / summary
+        if (key === "summary" || key === "content_preview") continue;
+
+        const apiFieldName = fieldMapping[key] || key;
+        formData.append(apiFieldName, value);
       }
 
       const response = await apiClient.request("/blogs", {
         method: "POST",
         body: formData,
       });
-      console.log("Create blog response:", response);
+
       const rawBlog = response.blog || response.data || response;
       return normalizeBlogData(rawBlog);
     } catch (error) {
@@ -103,50 +116,78 @@ export const createBlog = createAsyncThunk(
   }
 );
 
+
 export const updateBlog = createAsyncThunk(
   "blog/updateBlog",
   async ({ id, ...blogData }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
 
-      // Map normalized field names to API field names
       const fieldMapping = {
         title: "blog_title",
-        author: "blogname", // Map author to blogname as expected by API
-        summary: "content_preview",
+        blogname: "blogname",
+        content: "content",
         seo_title: "seotitle",
         seo_description: "seodiscr",
         seo_keywords: "seokeyword",
+        slug: "slug",
+        category_id: "category_id",
+        subcategory_id: "subcategory_id",
       };
 
-      Object.keys(blogData).forEach((key) => {
-        const value = blogData[key];
-        if (value === undefined || value === null || value === "") {
-          return;
+      for (const key in blogData) {
+        let value = blogData[key];
+
+        if (value === null || value === undefined || value === "") continue;
+
+        // 🚫 BLOCK read_time (IMPORTANT)
+        if (key === "read_time") continue;
+
+        // ✅ category_id object → number
+        if (key === "category_id") {
+          value = typeof value === "object" ? value.id : value;
         }
 
+        // ✅ subcategory_id object → number
+        if (key === "subcategory_id") {
+          value = typeof value === "object" ? value.id : value;
+        }
+
+        // ✅ Image upload
         if (key === "images") {
           if (Array.isArray(value) && value.length > 0) {
             formData.append("blogimage", value[0]);
           }
-          return;
+          continue;
         }
+
+        // 🚫 frontend-only fields
+        if (key === "summary" || key === "content_preview") continue;
 
         const apiFieldName = fieldMapping[key] || key;
         formData.append(apiFieldName, value);
-      });
+      }
+
+      // 🔍 Debug once (remove later)
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
 
       const response = await apiClient.request(`/blogs/${id}`, {
         method: "PUT",
         body: formData,
       });
+
       const rawBlog = response.blog || response.data || response;
       return normalizeBlogData(rawBlog);
     } catch (error) {
+      console.error("Update blog error:", error);
       return rejectWithValue(error.message || "Failed to update blog");
     }
   }
 );
+
+
 
 export const deleteBlog = createAsyncThunk(
   "blog/deleteBlog",
