@@ -49,7 +49,6 @@ export const fetchContacts = createAsyncThunk(
 
       return extractContacts(response).map(normalizeContact).filter(Boolean);
     } catch (error) {
-      console.error('Fetch contacts error:', error);
       return rejectWithValue(error.message || 'Failed to fetch contacts');
     }
   }
@@ -68,7 +67,6 @@ export const fetchContactById = createAsyncThunk(
 
       return normalizeContact(response?.data || response);
     } catch (error) {
-      console.error('Fetch contact by id error:', error);
       return rejectWithValue(error.message || 'Failed to fetch contact');
     }
   }
@@ -87,7 +85,6 @@ export const deleteContact = createAsyncThunk(
 
       return id;
     } catch (error) {
-      console.error('Delete contact error:', error);
       return rejectWithValue(error.message || 'Failed to delete contact');
     }
   }

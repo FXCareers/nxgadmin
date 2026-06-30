@@ -87,10 +87,9 @@ const careerSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCareers.fulfilled, (state, action) => {
-        
         state.loading = false;
-        state.careers = action.payload;
-        state.totalPosition = action.payload.total || 0;
+        state.careers = Array.isArray(action.payload) ? action.payload : [];
+        state.totalPosition = state.careers.length;
         state.error = null;
       })
       .addCase(fetchCareers.rejected, (state, action) => {

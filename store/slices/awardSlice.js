@@ -7,7 +7,6 @@ export const fetchAwards = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiClient.request('/awards');
-      console.log('Award API response:', response);
       // Handle different response structures
       if (response.data && Array.isArray(response.data)) {
         return response.data;
@@ -19,7 +18,6 @@ export const fetchAwards = createAsyncThunk(
         return [];
       }
     } catch (error) {
-      console.error('Fetch awards error:', error);
       return rejectWithValue(error.message || 'Failed to fetch awards');
     }
   }
@@ -70,10 +68,8 @@ export const createAward = createAsyncThunk(
         method: 'POST',
         body: formData,
       });
-      console.log('Create award response:', response);
       return response.award || response.data || response;
     } catch (error) {
-      console.error('Create award error:', error);
       return rejectWithValue(error.message || 'Failed to create award');
     }
   }

@@ -186,7 +186,6 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
       state.otpMessage = null;
-      state.otpMessage = null;
     },
     
     // Update user profile

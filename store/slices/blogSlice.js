@@ -110,7 +110,6 @@ export const createBlog = createAsyncThunk(
       const rawBlog = response.blog || response.data || response;
       return normalizeBlogData(rawBlog);
     } catch (error) {
-      console.error("Create blog error:", error);
       return rejectWithValue(error.message || "Failed to create blog");
     }
   }
@@ -169,11 +168,6 @@ export const updateBlog = createAsyncThunk(
         formData.append(apiFieldName, value);
       }
 
-      // 🔍 Debug once (remove later)
-      for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
       const response = await apiClient.request(`/blogs/${id}`, {
         method: "PUT",
         body: formData,
@@ -182,7 +176,6 @@ export const updateBlog = createAsyncThunk(
       const rawBlog = response.blog || response.data || response;
       return normalizeBlogData(rawBlog);
     } catch (error) {
-      console.error("Update blog error:", error);
       return rejectWithValue(error.message || "Failed to update blog");
     }
   }

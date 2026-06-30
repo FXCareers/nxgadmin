@@ -162,8 +162,13 @@ const RichTextEditor = ({
 
   /* ── Editor ──────────────────────────────────────────────── */
   const editor = useEditor({
+    immediatelyRender: true,
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3, 4, 5, 6] } }),
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3, 4, 5, 6] },
+        link: false,
+        underline: false,
+      }),
       Underline,
       Subscript,
       Superscript,

@@ -38,10 +38,11 @@ const AuthPage = () => {
           {/* Logo/Brand */}
           <div className="text-center mb-8">
           <Image
-                  width={100}
-                  height={100}
+                  width={179}
+                  height={66}
                   src={isDark ? "/NXG-Logo-white.webp" : "/NXG-Logo-black.webp"}
-                  alt="Yagroup Logo"
+                  alt="NXG Logo"
+                  style={{ width: '160px', height: 'auto', margin: '0 auto' }}
                 />
           </div>
 

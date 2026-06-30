@@ -12,7 +12,7 @@ export async function GET(request) {
   try {
     const url = new URL(imageUrl)
     // Only allow specific domains for security
-    if (!url.hostname.includes('yagroup.org')) {
+    if (!url.hostname.includes('nxgmarkets.com')) {
       return new NextResponse('Unauthorized domain', { status: 403 })
     }
   } catch (error) {
@@ -20,8 +20,6 @@ export async function GET(request) {
   }
 
   try {
-    console.log('Proxying image:', imageUrl)
-    
     const response = await fetch(imageUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Image-Proxy/1.0)',
@@ -33,7 +31,6 @@ export async function GET(request) {
     })
     
     if (!response.ok) {
-      console.warn(`Failed to fetch image: ${response.status} ${response.statusText}`)
       return new NextResponse('Image not found', { status: 404 })
     }
 
@@ -56,8 +53,6 @@ export async function GET(request) {
       },
     })
   } catch (error) {
-    console.error('Error proxying image:', error)
-    
     if (error.name === 'TimeoutError') {
       return new NextResponse('Request timeout', { status: 408 })
     }

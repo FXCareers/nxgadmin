@@ -82,10 +82,11 @@ const Sidebar = () => {
             <div className="flex items-center space-x-3">
               <div>
                 <Image
-                  width={100}
-                  height={100}
                   src={mounted ? (isDark ? '/NXG-Logo-white.webp' : '/NXG-Logo-black.webp') : '/NXG-Logo-black.webp'}
                   alt="NXG Markets Logo"
+                  width={179}
+                  height={66}
+                  style={{ width: '160px', height: 'auto' }}
                 />
                 {mounted && user && (
                   <p className={`text-xs pt-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

@@ -5,11 +5,11 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['api.yagroup.org'],
+    domains: ['api.nxgmarkets.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'api.yagroup.org',
+        hostname: 'api.nxgmarkets.com',
         port: '',
         pathname: '/api/uploads/**',
       },
@@ -23,7 +23,7 @@ const nextConfig = {
       },
       {
         source: '/api/:path*',
-        destination: 'https://api.yagroup.org/api/:path*',
+        destination: 'https://api.nxgmarkets.com/api/:path*',
       },
     ];
   },

@@ -66,7 +66,7 @@ const AwardsPage = () => {
       return null;
     }
     const urlString = String(imageUrl);
-    if (urlString.includes('api.yagroup.org')) {
+    if (urlString.includes('api.nxgmarkets.com')) {
       return `/api/proxy-image?url=${encodeURIComponent(urlString)}`;
     }
     return urlString;
