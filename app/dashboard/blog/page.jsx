@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 // import Pagination from '@/components/UI/Pagination';
 import useScreenHeight from "@/hooks/useScreenHeight";
+import { BASE_URL } from "@/lib/api";
 
 const BlogPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +50,8 @@ const BlogPage = () => {
     { value: "", label: "Select Subcategory" },
   ]);
 
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     title: "",
     blogname: "",
@@ -63,13 +66,9 @@ const BlogPage = () => {
     seo_description: "",
     seo_keywords: "",
     //read_time: "",
+    created_date: getTodayDate(),
   });
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Memoized callback functions for RichTextEditor
-  const handleSummaryChange = useCallback((value) => {
-    setFormData((prev) => ({ ...prev, summary: value }));
-  }, []);
 
   const handleContentChange = useCallback((value) => {
     setFormData((prev) => ({ ...prev, content: value }));
@@ -136,9 +135,7 @@ const BlogPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/blogs/categories"
-        );
+        const response = await fetch(`${BASE_URL}/blogs/categories`);
         const data = await response.json();
 
         if (Array.isArray(data)) {
@@ -170,7 +167,7 @@ const BlogPage = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/blogs/categories/${formData.category_id}/subcategories`
+          `${BASE_URL}/blogs/categories/${formData.category_id}/subcategories`,
         );
         const data = await response.json();
 
@@ -253,7 +250,7 @@ const BlogPage = () => {
 
       if (editingBlog) {
         await dispatch(
-          updateBlog({ id: editingBlog.id, ...blogData })
+          updateBlog({ id: editingBlog.id, ...blogData }),
         ).unwrap();
         window.alert("Blog updated successfully.");
       } else {
@@ -292,6 +289,9 @@ const BlogPage = () => {
       seo_description: blog.seo_description || "",
       seo_keywords: blog.seo_keywords || "",
       read_time: blog.read_time || "",
+      created_date: blog.created_at
+        ? new Date(blog.created_at).toISOString().split("T")[0]
+        : getTodayDate(),
     });
 
     // Set image preview if blog has an image
@@ -337,13 +337,14 @@ const BlogPage = () => {
       summary: "",
       slug: "",
       //tags: "",
-     // status: "draft",
+      // status: "draft",
       category_id: "",
       subcategory_id: "",
       seo_title: "",
       seo_description: "",
       seo_keywords: "",
       //read_time: "",
+      created_date: getTodayDate(),
     });
     setEditingBlog(null);
     setImageFile(null);
@@ -442,10 +443,16 @@ const BlogPage = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
-            <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${isDark ? 'text-primarycolor' : 'text-primarycolor'
-              }`} />
-            <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'
-              }`}>
+            <Loader2
+              className={`w-12 h-12 animate-spin mx-auto mb-4 ${
+                isDark ? "text-primarycolor" : "text-primarycolor"
+              }`}
+            />
+            <p
+              className={`text-lg ${
+                isDark ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Loading blogs...
             </p>
           </div>
@@ -461,8 +468,10 @@ const BlogPage = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1
-              className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"
-                }`}>
+              className={`text-3xl font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               Blog Management
             </h1>
             <p className={`mt-2 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -472,7 +481,8 @@ const BlogPage = () => {
           <Button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center space-x-2"
-            disabled={createLoading}>
+            disabled={createLoading}
+          >
             {createLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
@@ -496,12 +506,15 @@ const BlogPage = () => {
         {(!Array.isArray(blogs) || blogs.length === 0) && !loading ? (
           <Card className="p-12 text-center">
             <FileText
-              className={`w-16 h-16 mx-auto mb-4 ${isDark ? "text-gray-600" : "text-gray-400"
-                }`}
+              className={`w-16 h-16 mx-auto mb-4 ${
+                isDark ? "text-gray-600" : "text-gray-400"
+              }`}
             />
             <h3
-              className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"
-                }`}>
+              className={`text-xl font-semibold mb-2 ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               No Blog Posts Yet
             </h3>
             <p className={`mb-6 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -509,7 +522,8 @@ const BlogPage = () => {
             </p>
             <Button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center space-x-2 mx-auto">
+              className="flex items-center space-x-2 mx-auto"
+            >
               <Plus size={20} />
               <span>Add Blog</span>
             </Button>
@@ -522,7 +536,8 @@ const BlogPage = () => {
                 return (
                   <Card
                     key={blog.id}
-                    className="overflow-hidden transition-colors">
+                    className="overflow-hidden transition-colors"
+                  >
                     {/* Blog Image */}
                     <div className="aspect-video bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
                       {(() => {
@@ -543,8 +558,10 @@ const BlogPage = () => {
                                   }
                                 />
                                 <p
-                                  className={`text-sm mt-2 ${isDark ? "text-gray-500" : "text-gray-400"
-                                    }`}>
+                                  className={`text-sm mt-2 ${
+                                    isDark ? "text-gray-500" : "text-gray-400"
+                                  }`}
+                                >
                                   No Image
                                 </p>
                               </div>
@@ -561,7 +578,9 @@ const BlogPage = () => {
                               fill
                               className="object-cover transition-opacity duration-300"
                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              onError={() => handleImageError(imageUrl, blog.id)}
+                              onError={() =>
+                                handleImageError(imageUrl, blog.id)
+                              }
                               placeholder="blur"
                               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyLli+ZCXRTnortOrVgRQbNCGpFBWOvvjmOUDyQhzX1FWmYpvqyTz1z1Xz/AK4t7dZUgmgpX2mhQc5QsLrJBOqvOv8AKj/XE9wAFctGAUnz8mB8F1zUNNtRJH1JFJl6E4nqj0tX9L2+b1/amwlvlCFBq8B7GvdXMTJ05oByX0NJ+Jp9vJOVXHr3sKy5Wuqxgl9h8xz7//Z"
                             />
@@ -578,8 +597,10 @@ const BlogPage = () => {
                                   }
                                 />
                                 <p
-                                  className={`text-sm mt-2 ${isDark ? "text-gray-500" : "text-gray-400"
-                                    }`}>
+                                  className={`text-sm mt-2 ${
+                                    isDark ? "text-gray-500" : "text-gray-400"
+                                  }`}
+                                >
                                   Image Error
                                 </p>
                               </div>
@@ -592,10 +613,12 @@ const BlogPage = () => {
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${isDark
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            isDark
                               ? "bg-gray-700 text-gray-300"
                               : getStatusColor(blog.status)
-                            }`}>
+                          }`}
+                        >
                           {blog.status?.charAt(0).toUpperCase() +
                             blog.status?.slice(1)}
                         </span>
@@ -603,10 +626,12 @@ const BlogPage = () => {
                           <button
                             onClick={() => handleEdit(blog)}
                             disabled={updateLoading}
-                            className={`p-2 rounded-lg transition-colors ${isDark
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark
                                 ? "text-gray-400 hover:text-yellow-400 hover:bg-gray-700"
                                 : "text-gray-500 hover:text-yellow-600 hover:bg-gray-100"
-                              } disabled:opacity-50`}>
+                            } disabled:opacity-50`}
+                          >
                             {updateLoading ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
@@ -616,10 +641,12 @@ const BlogPage = () => {
                           <button
                             onClick={() => handleDelete(blog.id)}
                             disabled={deleteLoading}
-                            className={`p-2 rounded-lg transition-colors ${isDark
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark
                                 ? "text-gray-400 hover:text-red-400 hover:bg-gray-700"
                                 : "text-gray-500 hover:text-red-600 hover:bg-gray-100"
-                              } disabled:opacity-50`}>
+                            } disabled:opacity-50`}
+                          >
                             {deleteLoading ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
@@ -630,26 +657,33 @@ const BlogPage = () => {
                       </div>
 
                       <h3
-                        className={`text-lg font-semibold mb-2 line-clamp-2 ${isDark ? "text-white" : "text-gray-900"
-                          }`}>
+                        className={`text-lg font-semibold mb-2 line-clamp-2 ${
+                          isDark ? "text-white" : "text-gray-900"
+                        }`}
+                      >
                         {blog.title}
                       </h3>
 
                       {blog.summary && (
                         <div className="mb-3">
                           <p
-                            className={`text-sm ${expandedSummaries.has(blog.id) ? "" : "line-clamp-2"
-                              } ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                            className={`text-sm ${
+                              expandedSummaries.has(blog.id)
+                                ? ""
+                                : "line-clamp-2"
+                            } ${isDark ? "text-gray-400" : "text-gray-600"}`}
                           >
                             {stripHtmlTags(blog.summary)}
                           </p>
                           {needsTruncation(blog.summary, 80) && (
                             <button
                               onClick={() => toggleSummaryExpanded(blog.id)}
-                              className={`text-xs mt-1 font-medium transition-colors ${isDark
+                              className={`text-xs mt-1 font-medium transition-colors ${
+                                isDark
                                   ? "text-yellow-400 hover:text-yellow-300"
                                   : "text-yellow-600 hover:text-yellow-700"
-                                }`}>
+                              }`}
+                            >
                               {expandedSummaries.has(blog.id)
                                 ? "Show less"
                                 : "Read more"}
@@ -660,20 +694,24 @@ const BlogPage = () => {
 
                       <div className="mb-4">
                         <p
-                          className={`text-sm ${expandedContents.has(blog.id) ? "" : "line-clamp-3"
-                            } ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                          className={`text-sm ${
+                            expandedContents.has(blog.id) ? "" : "line-clamp-3"
+                          } ${isDark ? "text-gray-400" : "text-gray-600"}`}
                         >
                           {stripHtmlTags(blog.content)}
                         </p>
                         {needsTruncation(blog.content, 120) && (
                           <button
                             onClick={() => toggleContentExpanded(blog.id)}
-                            className={`text-xs mt-1 font-medium transition-colors ${isDark
-                                ? 'text-primarycolor hover:text-yellow-300'
-                                : 'text-primarycolor hover:text-yellow-700'
-                              }`}
+                            className={`text-xs mt-1 font-medium transition-colors ${
+                              isDark
+                                ? "text-primarycolor hover:text-yellow-300"
+                                : "text-primarycolor hover:text-yellow-700"
+                            }`}
                           >
-                            {expandedContents.has(blog.id) ? 'Show less' : 'Read more'}
+                            {expandedContents.has(blog.id)
+                              ? "Show less"
+                              : "Read more"}
                           </button>
                         )}
                       </div>
@@ -682,12 +720,17 @@ const BlogPage = () => {
                         {categoryName && (
                           <div className="flex items-center space-x-2">
                             <div
-                              className={`w-2 h-2 rounded-full ${isDark ? "bg-primarycolor" : "bg-primarycolor"
-                                }`}
+                              className={`w-2 h-2 rounded-full ${
+                                isDark ? "bg-primarycolor" : "bg-primarycolor"
+                              }`}
                             />
                             <span
-                              className={`text-sm font-medium ${isDark ? "text-primarycolor" : "text-primarycolor"
-                                }`}>
+                              className={`text-sm font-medium ${
+                                isDark
+                                  ? "text-primarycolor"
+                                  : "text-primarycolor"
+                              }`}
+                            >
                               {categoryName}
                             </span>
                           </div>
@@ -695,11 +738,15 @@ const BlogPage = () => {
                         <div className="flex items-center space-x-2">
                           <Calendar
                             size={14}
-                            className={isDark ? "text-gray-400" : "text-gray-500"}
+                            className={
+                              isDark ? "text-gray-400" : "text-gray-500"
+                            }
                           />
                           <span
-                            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
-                              }`}>
+                            className={`text-sm ${
+                              isDark ? "text-gray-400" : "text-gray-600"
+                            }`}
+                          >
                             {formatDate(blog.created_at)}
                           </span>
                         </div>
@@ -712,8 +759,10 @@ const BlogPage = () => {
                               }
                             />
                             <span
-                              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
-                                }`}>
+                              className={`text-sm ${
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              }`}
+                            >
                               {formatTags(blog.tags)}
                             </span>
                           </div>
@@ -723,16 +772,21 @@ const BlogPage = () => {
                         {blog.read_time > 0 && (
                           <div className="flex items-center space-x-2">
                             <div
-                              className={`w-3 h-3 rounded-full border ${isDark ? "border-gray-400" : "border-gray-500"
-                                } flex items-center justify-center`}>
+                              className={`w-3 h-3 rounded-full border ${
+                                isDark ? "border-gray-400" : "border-gray-500"
+                              } flex items-center justify-center`}
+                            >
                               <div
-                                className={`w-1 h-1 rounded-full ${isDark ? "bg-gray-400" : "bg-gray-500"
-                                  }`}
+                                className={`w-1 h-1 rounded-full ${
+                                  isDark ? "bg-gray-400" : "bg-gray-500"
+                                }`}
                               />
                             </div>
                             <span
-                              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"
-                                }`}>
+                              className={`text-sm ${
+                                isDark ? "text-gray-400" : "text-gray-600"
+                              }`}
+                            >
                               {blog.read_time} min read
                             </span>
                           </div>
@@ -758,7 +812,8 @@ const BlogPage = () => {
           isOpen={isModalOpen}
           onClose={resetForm}
           title={editingBlog ? "Edit Blog Post" : "Create New Blog Post"}
-          className="max-w-4xl">
+          className="max-w-4xl"
+        >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column */}
@@ -790,6 +845,15 @@ const BlogPage = () => {
                   placeholder="Enter URL slug"
                   required
                 />
+                <Input
+                  label="Created Date"
+                  type="date"
+                  value={formData.created_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, created_date: e.target.value })
+                  }
+                  required
+                />
                 {/* <Select
                   label="Status"
                   value={formData.status}
@@ -810,22 +874,24 @@ const BlogPage = () => {
                   placeholder="Estimated read time"
                 /> */}
 
-
                 {/* Image Upload */}
                 <div>
                   <label
-                    className={`block text-sm font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"
-                      }`}>
+                    className={`block text-sm font-medium mb-2 ${
+                      isDark ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
                     Featured Image
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${isDark
-                        ? 'bg-gray-800 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                      }`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${
+                      isDark
+                        ? "bg-gray-800 border-gray-600 text-white"
+                        : "bg-white border-gray-300 text-gray-900"
+                    }`}
                   />
                   {imagePreview && (
                     <div className="mt-2 relative h-32 w-full">
@@ -855,7 +921,7 @@ const BlogPage = () => {
                         } catch (error) {
                           console.error(
                             "Error rendering preview image:",
-                            error
+                            error,
                           );
                           return (
                             <div className="w-full h-full flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
@@ -898,30 +964,13 @@ const BlogPage = () => {
               </div>
             </div>
 
-            {/* Summary Editor */}
-            <RichTextEditor
-              label="Summary"
-              value={formData.summary}
-              onChange={handleSummaryChange}
-              placeholder="Write a brief summary of the blog post (shown in listings and SEO previews)..."
-              rows={4}
-            />
-
-            {/* Content Editor */}
-            <RichTextEditor
-              label="Content"
-              value={formData.content}
-              onChange={handleContentChange}
-              placeholder="Write your full blog content here. Use the toolbar to format text, add headings, images, links, and more..."
-              rows={12}
-              required
-            />
-
             {/* SEO Section */}
             <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
               <h3
-                className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"
-                  }`}>
+                className={`text-lg font-semibold mb-4 ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
                 SEO Settings
               </h3>
               <div className="grid grid-cols-1 gap-4">
@@ -956,17 +1005,29 @@ const BlogPage = () => {
               </div>
             </div>
 
+            {/* Content Editor — full-width, at the end of all fields */}
+            <RichTextEditor
+              label="Content"
+              value={formData.content}
+              onChange={handleContentChange}
+              placeholder="Write your blog content here. Use the toolbar to format text, insert headings, images, tables, links, and more..."
+              rows={14}
+              required
+            />
+
             <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button
                 variant="secondary"
                 onClick={resetForm}
-                disabled={createLoading || updateLoading}>
+                disabled={createLoading || updateLoading}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={createLoading || updateLoading}
-                className="flex items-center space-x-2">
+                className="flex items-center space-x-2"
+              >
                 {(createLoading || updateLoading) && (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 )}

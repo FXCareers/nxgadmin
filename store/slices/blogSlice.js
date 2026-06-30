@@ -21,7 +21,6 @@ const normalizeBlogData = (blog) => {
     read_time: blog.read_time || 0,
     created_at: blog.created_at,
     updated_at: blog.updated_at,
-    image_url: blog.blogimage,
     // Keep original fields for reference
     _original: blog,
   };
@@ -79,6 +78,7 @@ export const createBlog = createAsyncThunk(
         slug: "slug",
         category_id: "category_id",
         subcategory_id: "subcategory_id",
+        created_date: "created_date",
       };
 
       for (const key in blogData) {
@@ -133,6 +133,7 @@ export const updateBlog = createAsyncThunk(
         slug: "slug",
         category_id: "category_id",
         subcategory_id: "subcategory_id",
+        created_date: "created_date",
       };
 
       for (const key in blogData) {
