@@ -815,153 +815,120 @@ const BlogPage = () => {
           className="max-w-4xl"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-4">
-                <Input
-                  label="Title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Enter blog title"
-                  required
-                />
-                <Input
-                  label="Blog Name"
-                  value={formData.blogname}
-                  onChange={(e) =>
-                    setFormData({ ...formData, blogname: e.target.value })
-                  }
-                  placeholder="Enter blog name"
-                  required
-                />
-                <Input
-                  label="Slug"
-                  value={formData.slug}
-                  onChange={(e) =>
-                    setFormData({ ...formData, slug: e.target.value })
-                  }
-                  placeholder="Enter URL slug"
-                  required
-                />
-                <Input
-                  label="Created Date"
-                  type="date"
-                  value={formData.created_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, created_date: e.target.value })
-                  }
-                  required
-                />
-                {/* <Select
-                  label="Status"
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  options={statusOptions}
-                  required
-                /> */}
-                {/* <Input
-                  label="Read Time (minutes)"
-                  type="number"
-                  min="0"
-                  value={formData.read_time}
-                  onChange={(e) =>
-                    setFormData({ ...formData, read_time: e.target.value })
-                  }
-                  placeholder="Estimated read time"
-                /> */}
+            {/* Row 1: Title | Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                placeholder="Enter blog title"
+                required
+              />
+              <Select
+                label="Category"
+                value={formData.category_id}
+                onChange={(e) =>
+                  setFormData({ ...formData, category_id: e.target.value })
+                }
+                options={categoryOptions}
+                required
+              />
+            </div>
 
-                {/* Image Upload */}
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Featured Image
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primarydarkcolor ${
-                      isDark
-                        ? "bg-gray-800 border-gray-600 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
-                    }`}
-                  />
-                  {imagePreview && (
-                    <div className="mt-2 relative h-32 w-full">
-                      {(() => {
-                        try {
-                          // Ensure imagePreview is a valid string
-                          if (
-                            !imagePreview ||
-                            typeof imagePreview !== "string"
-                          ) {
-                            return null;
-                          }
+            {/* Row 2: Blog Name | Subcategory */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Blog Name"
+                value={formData.blogname}
+                onChange={(e) =>
+                  setFormData({ ...formData, blogname: e.target.value })
+                }
+                placeholder="Enter blog name"
+                required
+              />
+              <Select
+                label="Subcategory"
+                value={formData.subcategory_id}
+                onChange={(e) =>
+                  setFormData({ ...formData, subcategory_id: e.target.value })
+                }
+                options={subcategoryOptions}
+              />
+            </div>
 
-                          return (
-                            <Image
-                              src={imagePreview}
-                              alt="Preview"
-                              fill
-                              className="object-cover rounded-lg"
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                              onError={(e) => {
-                                console.warn("Failed to load preview image");
-                                setImagePreview(null);
-                              }}
-                            />
-                          );
-                        } catch (error) {
-                          console.error(
-                            "Error rendering preview image:",
-                            error,
-                          );
-                          return (
-                            <div className="w-full h-full flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
-                              <FileText
-                                size={24}
-                                className={
-                                  isDark ? "text-gray-500" : "text-gray-400"
-                                }
-                              />
-                            </div>
-                          );
-                        }
-                      })()}
-                    </div>
+            {/* Row 3: Slug | Created Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Slug"
+                value={formData.slug}
+                onChange={(e) =>
+                  setFormData({ ...formData, slug: e.target.value })
+                }
+                placeholder="Enter URL slug"
+                required
+              />
+              <Input
+                label="Created Date"
+                type="date"
+                value={formData.created_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, created_date: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            {/* Row 4: Featured Image */}
+            <div>
+              <label
+                className={`block text-sm font-medium mb-2 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Featured Image
+              </label>
+              <label
+                className={`flex items-center gap-3 w-full px-3 py-2 border rounded-lg cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-primarydarkcolor ${
+                  isDark
+                    ? "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-500"
+                    : "bg-white border-gray-300 text-gray-500 hover:border-gray-400"
+                }`}
+              >
+                <span
+                  className={`shrink-0 px-3 py-1 text-xs font-medium rounded border ${
+                    isDark
+                      ? "bg-gray-700 border-gray-500 text-gray-200"
+                      : "bg-gray-100 border-gray-300 text-gray-700"
+                  }`}
+                >
+                  Choose File
+                </span>
+                <span className="truncate text-sm">
+                  {imageFile ? imageFile.name : "No file chosen"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="sr-only"
+                />
+              </label>
+              {imagePreview && (
+                <div className="mt-3 relative h-40 w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                  {typeof imagePreview === "string" && (
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      onError={() => setImagePreview(null)}
+                    />
                   )}
                 </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                {/* Category and Subcategory */}
-                <Select
-                  label="Category"
-                  value={formData.category_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category_id: e.target.value })
-                  }
-                  options={categoryOptions}
-                  required
-                />
-
-                <Select
-                  label="Subcategory"
-                  value={formData.subcategory_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, subcategory_id: e.target.value })
-                  }
-                  options={subcategoryOptions}
-                />
-              </div>
+              )}
             </div>
 
             {/* SEO Section */}

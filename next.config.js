@@ -3,6 +3,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
     unoptimized: true,
     domains: ['api.nxgmarkets.com'],
@@ -23,7 +28,7 @@ const nextConfig = {
       },
       {
         source: '/api/:path*',
-        destination: 'https://api.nxgmarkets.com/api/:path*',
+        destination: 'https://api.nxgmarkets.com/:path*',
       },
     ];
   },
