@@ -66,6 +66,7 @@ export const registerUser = createAsyncThunk(
         fname: userData.fname,
         lname: userData.lname,
         phone: userData.phone,
+        role_id: 1,
       };
 
       const response = await apiClient.request('/auth/signup', {
