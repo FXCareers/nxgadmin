@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
-import TiptapImage from '@tiptap/extension-image';
+import ResizableImage from './ResizableImageExtension';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import FontFamily from '@tiptap/extension-font-family';
@@ -179,7 +179,7 @@ const RichTextEditor = ({
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['heading', 'paragraph', 'tableCell', 'tableHeader'] }),
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
-      TiptapImage.configure({ allowBase64: true }),
+      ResizableImage.configure({ allowBase64: true }),
       TableKit.configure({ table: { resizable: true } }),
       Placeholder.configure({ placeholder }),
     ],
