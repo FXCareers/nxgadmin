@@ -841,7 +841,7 @@ const RichTextEditor = ({
           max-width: 100%;
           border-radius: 0.5rem;
           display: block;
-          margin: 0.75em 0;
+          margin: 0.75em auto;
           cursor: default;
         }
         .tiptap-editor .ProseMirror img.ProseMirror-selectednode {
