@@ -10,6 +10,7 @@ import themeReducer from './slices/themeSlice';
 import contactReducer from './slices/contactSlice';
 import applicationReducer from './slices/applicationSlice';
 import subscriberReducer from './slices/subscriberSlice';
+import leadReducer from './slices/leadSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     contact: contactReducer,
     application: applicationReducer,
     subscriber: subscriberReducer,
+    lead: leadReducer,
   },
 });
 
